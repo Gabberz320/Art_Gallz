@@ -1,0 +1,8 @@
+# Ignore environment variables
+.env
+
+# Ignore the uploads folder (so you don't upload test images to GitHub)
+uploads/
+
+# Ignore Mac system files (if you are on a Mac)
+.DS_Store
