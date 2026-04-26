@@ -2,6 +2,14 @@
 require 'db.php';
 
 $artworks = [];
+$message = '';
+$isSuccessMessage = false;
+
+if (isset($_SESSION['upload_flash_message'])) {
+    $message = $_SESSION['upload_flash_message'];
+    $isSuccessMessage = isset($_SESSION['upload_flash_success']) && $_SESSION['upload_flash_success'] === true;
+    unset($_SESSION['upload_flash_message'], $_SESSION['upload_flash_success']);
+}
 
 try {
     $stmt = $pdo->query(
@@ -42,6 +50,10 @@ try {
         </p>
         <p><a href="upload.php">Upload New Artwork</a></p>
         <a href="logout.php">Logout</a>
+    <?php endif; ?>
+
+    <?php if ($message): ?>
+        <div id="upload-message" class="message<?php echo $isSuccessMessage ? ' success-popup' : ''; ?>" data-autohide="<?php echo $isSuccessMessage ? 'true' : 'false'; ?>"><?php echo htmlspecialchars($message); ?></div>
     <?php endif; ?>
 
     <hr>

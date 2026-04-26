@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $_SESSION['upload_flash_message'] = $message;
     $_SESSION['upload_flash_success'] = $isSuccessMessage;
-    header('Location: upload.php');
+    header('Location: ' . ($isSuccessMessage ? 'index.php' : 'upload.php'));
     exit;
 }
 ?>
