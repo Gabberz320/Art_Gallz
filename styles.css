@@ -1,0 +1,29 @@
+body {
+	margin: 0;
+	padding: 2rem;
+	font-family: Tahoma, Geneva, Verdana;
+	color: #970090;
+	background: #f8fafc;
+}
+
+h1, h2, h3 {
+	margin-top: 0;
+}
+
+a {
+	color: #007997;
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+.gallery-image {
+	width: 260px;
+	max-width: 100%;
+	height: auto;
+	display: block;
+	margin: 0 auto 0.75rem;
+	border-radius: 8px;
+}

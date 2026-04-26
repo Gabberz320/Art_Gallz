@@ -1,8 +1,24 @@
-<?php require 'db.php'; ?>
+<?php
+require 'db.php';
+
+$artworks = [];
+
+try {
+    $stmt = $pdo->query(
+        "SELECT a.Title, a.Description, a.CreationDate, a.ImageURL, u.Name AS UserName
+         FROM Artworks a
+         INNER JOIN Users u ON a.user_id = u.user_id
+         ORDER BY a.art_ID DESC"
+    );
+    $artworks = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    $artworks = [];
+}
+?>
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Art Gallz</title>
+    <title>Web Gallz</title>
     <link href="styles.css" type="text/css" rel="stylesheet">
     
     <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -10,8 +26,8 @@
     <script src="https://cdn.jsdelivr.net/npm/jwt-decode/build/jwt-decode.min.js"></script>
 </head>
 <body>
-    <h1>Welcome to Art Gallz</h1>
-
+    <h1>Welcome to Web Gallz</h1>
+    <!-- show login or user info based on session -->
     <?php if (!isset($_SESSION['user_id'])): ?>
         <p>Please log in to start sharing art.</p>
         <div id="g_id_onload"
@@ -24,7 +40,31 @@
         <p>
             Success! You are logged in as: <?php echo htmlspecialchars($_SESSION['user_name']); ?>
         </p>
+        <p><a href="upload.php">Upload New Artwork</a></p>
         <a href="logout.php">Logout</a>
+    <?php endif; ?>
+
+    <hr>
+    <h2>Gallery</h2>
+
+    <?php if (empty($artworks)): ?>
+        <p>No artworks have been added yet.</p>
+    <?php else: ?>
+        <div class="gallery-list">
+            <?php foreach ($artworks as $artwork): ?>
+                <article class="gallery-item">
+                    <img
+                        src="<?php echo htmlspecialchars($artwork['ImageURL']); ?>"
+                        alt="<?php echo htmlspecialchars($artwork['Title']); ?>"
+                        class="gallery-image"
+                    >
+                    <h3><?php echo htmlspecialchars($artwork['Title']); ?></h3>
+                    <p><strong>By:</strong> <?php echo htmlspecialchars($artwork['UserName']); ?></p>
+                    <p><?php echo nl2br(htmlspecialchars($artwork['Description'])); ?></p>
+                    <p><strong>Date:</strong> <?php echo htmlspecialchars($artwork['CreationDate']); ?></p>
+                </article>
+            <?php endforeach; ?>
+        </div>
     <?php endif; ?>
 
     <script>
@@ -32,7 +72,7 @@
         const responsePayload = jwt_decode(response.credential);
 
         if (!responsePayload) {
-            console.error("Payload was empty. Aborting login.");
+            console.error("Login error.");
             return;
         }
 
