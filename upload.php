@@ -20,7 +20,51 @@ if (isset($_SESSION['upload_flash_message'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title = $_POST['title'] ?? 'Untitled';
     $description = $_POST['description'] ?? '';
-    $user_id = $_SESSION['user_id'];
+    $user_id = null;
+
+    if (isset($_SESSION['user_id'])) {
+        $stmt = $pdo->prepare("SELECT user_id FROM Users WHERE user_id = ?");
+        $stmt->execute([(int)$_SESSION['user_id']]);
+        $existingUserId = $stmt->fetchColumn();
+
+        if ($existingUserId) {
+            $user_id = (int)$existingUserId;
+        }
+    }
+
+    if ($user_id === null && !empty($_SESSION['google_id'])) {
+        $stmt = $pdo->prepare("SELECT user_id, Name FROM Users WHERE oauthID = ?");
+        $stmt->execute([$_SESSION['google_id']]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$user && !empty($_SESSION['user_email']) && !empty($_SESSION['user_name'])) {
+            $stmt = $pdo->prepare("INSERT INTO Users (oauthID, Email, Name) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE Email = ?, Name = ?");
+            $stmt->execute([
+                $_SESSION['google_id'],
+                $_SESSION['user_email'],
+                $_SESSION['user_name'],
+                $_SESSION['user_email'],
+                $_SESSION['user_name']
+            ]);
+
+            $stmt = $pdo->prepare("SELECT user_id, Name FROM Users WHERE oauthID = ?");
+            $stmt->execute([$_SESSION['google_id']]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        }
+
+        if ($user) {
+            $_SESSION['user_id'] = (int)$user['user_id'];
+            $_SESSION['user_name'] = $user['Name'];
+            $user_id = (int)$user['user_id'];
+        }
+    }
+
+    if ($user_id === null) {
+        $_SESSION['upload_flash_message'] = 'Your login session is out of sync. Please sign out and sign in again.';
+        $_SESSION['upload_flash_success'] = false;
+        header('Location: upload.php');
+        exit;
+    }
 
     //check if file was uploaded without errors
     if (isset($_FILES['artwork']) && $_FILES['artwork']['error'] === UPLOAD_ERR_OK) {

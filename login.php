@@ -11,8 +11,8 @@ if (isset($_POST['google_id'])) {
         // save or update the user using your 'oauthID' column
         $stmt = $pdo->prepare("INSERT INTO Users (oauthID, Email, Name) 
                                VALUES (?, ?, ?) 
-                               ON DUPLICATE KEY UPDATE Name = ?");
-        $stmt->execute([$oauth_id, $email, $name, $name]);
+                               ON DUPLICATE KEY UPDATE Email = ?, Name = ?");
+        $stmt->execute([$oauth_id, $email, $name, $email, $name]);
 
         // fetch user using your 'user_id' and 'oauthID' columns
         $stmt = $pdo->prepare("SELECT user_id, Name FROM Users WHERE oauthID = ?");
@@ -22,6 +22,8 @@ if (isset($_POST['google_id'])) {
         // set session using column names
         $_SESSION['user_id'] = $user['user_id'];
         $_SESSION['user_name'] = $user['Name'];
+        $_SESSION['google_id'] = $oauth_id;
+        $_SESSION['user_email'] = $email;
 
         // send them back to the main page
         header("Location: index.php");
