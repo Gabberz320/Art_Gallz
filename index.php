@@ -11,106 +11,314 @@ if (isset($_SESSION['upload_flash_message'])) {
     unset($_SESSION['upload_flash_message'], $_SESSION['upload_flash_success']);
 }
 
+//filter for Browse
+$filter = $_GET['filter'] ?? 'recent';
+
 try {
+    $order = match($filter) {
+        'recent' => 'a.art_ID DESC',
+        'liked'  => 'a.LikesCounter DESC',
+        default  => 'a.LikesCounter DESC, a.art_ID DESC',
+    };
     $stmt = $pdo->query(
-        "SELECT a.Title, a.Description, a.CreationDate, a.ImageURL, u.Name AS UserName
-         FROM Artworks a
-         INNER JOIN Users u ON a.user_id = u.user_id
-         ORDER BY a.art_ID DESC"
+        "SELECT a.art_ID, a.user_id, a.Title, a.Description, 
+                a.CreationDate, a.ImageURL, a.LikesCounter, u.Name AS UserName
+        FROM Artworks a
+        INNER JOIN Users u ON a.user_id = u.user_id
+        ORDER BY $order"
     );
     $artworks = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     $artworks = [];
 }
+
+//Get liked art IDs for current user
+$likedIds = [];
+if (isset($_SESSION['user_id'])) {
+    try {
+        $ls = $pdo->prepare("SELECT art_ID 
+                            FROM Likes
+                            WHERE user_id = ?");
+        $ls->execute([$_SESSION['user_id']]);
+        $likedIds = array_column($ls->fetchAll(PDO::FETCH_ASSOC), 'art_ID');
+    } catch (PDOException $e){}
+}
+
+
+function initials($name){
+    $parts = explode(' ', trim($name));
+    $ini = strtoupper(substr($parts[0], 0, 1));
+    if (count($parts) > 1) $ini .= strtoupper(substr(end($parts), 0, 1));
+    return $ini;
+}
 ?>
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web Gallz</title>
-    <link href="styles.css" type="text/css" rel="stylesheet">
-    
+    <link href="styles.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    
     <script src="https://cdn.jsdelivr.net/npm/jwt-decode/build/jwt-decode.min.js"></script>
 </head>
 <body>
-    <h1>Welcome to Web Gallz</h1>
-    <!-- show login or user info based on session -->
-    <?php if (!isset($_SESSION['user_id'])): ?>
-        <p>Please log in to start sharing art.</p>
-        <div id="g_id_onload"
-             data-client_id="<?php echo $env['GOOGLE_CLIENT_ID']; ?>"
-             data-callback="handleCredentialResponse"
-             data-auto_prompt="false">
+
+<!-- Navbar -->
+<header class="topbar">
+    <div class="topbar_logo">Web Gallz</div>
+    <div class="topbar_actions">
+        <?php if (isset($_SESSION['user_id'])): ?>
+
+<!-- dark/Light toggle -->
+<button class="mode_toggle" id="modeToggle" title="Toggle theme">
+    <span class="toggle_track">
+        <span class="toggle_thumb"></span>
+    </span>
+</button>
+
+<!-- upload button -->
+<a href="upload.php" class="btn_upload">
+<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Upload </a>
+
+<!--Initial/ profile dropdown-->
+<div class="avatar_wrap">
+    <div class="avatar" id="avatarBtn">
+        <?php echo initials($_SESSION['user_name']); ?>
+    </div>
+    <div class="avatar_dropdown" id="avatarDropdown">
+        <div class="dropdown_name"><?php echo htmlspecialchars($_SESSION['user_name']); ?></div>
+        <hr class="dropdown_divider">
+        <a href="logout.php" class="dropdown_item">Logout</a>
+    </div>
+</div>
+<?php else: ?>
+
+<!-- Google Sign-In -->
+<div id="g_id_onload"
+    data-client_id="<?php echo htmlspecialchars($env['GOOGLE_CLIENT_ID']); ?>"
+    data-callback="handleCredentialResponse"
+    data-auto_prompt="false">
+</div>
+
+<div class="g_id_signin"
+    data-type="standard"
+    data-theme="filled_black"
+    data-size="medium">
+</div>
+<?php endif; ?>
+
+</div>
+</header>
+
+<div class="layout">
+    <!-- for the sidebar ( i don't think this's neccesary)-->
+    <aside class="sidebar">
+    <div>
+        <div class="sidebar_section">Browse</div>
+        <nav class="sidebar_nav">
+            <a href="?filter=recent" class="sidebar_link <?php echo $filter === 'recent' ? 'active' : ''; ?>">All Posts</a>
+            <a href="?filter=liked"  class="sidebar_link <?php echo $filter === 'liked'  ? 'active' : ''; ?>">Trending</a>
+        </nav>
+    </div>
+
+<!-- add the link for the categories-->
+        <div>
+            <div class="sidebar_section">Categories</div>
+            <nav class="sidebar_nav">
+                <a href="#" class="sidebar_link">Illustration</a>
+                <a href="#" class="sidebar_link">Doodles</a>
+                <a href="#" class="sidebar_link">Photography</a>
+            </nav>
         </div>
-        <div class="g_id_signin" data-type="standard"></div>
-    <?php else: ?>
-        <p>
-            Success! You are logged in as: <?php echo htmlspecialchars($_SESSION['user_name']); ?>
-        </p>
-        <p><a href="upload.php">Upload New Artwork</a></p>
-        <a href="logout.php">Logout</a>
+
+    </aside>
+
+<!-- main feed -->
+<main class="main">
+
+    <?php if($message): ?>
+        <div id="upload_message" class="message<?php echo $isSuccessMessage ? ' success_popup' : ''; ?>" data-autohide="<?php echo $isSuccessMessage ? 'true' : 'false'; ?>">
+            <?php echo htmlspecialchars($message); ?>
+        </div>
     <?php endif; ?>
 
-    <?php if ($message): ?>
-        <div id="upload-message" class="message<?php echo $isSuccessMessage ? ' success-popup' : ''; ?>" data-autohide="<?php echo $isSuccessMessage ? 'true' : 'false'; ?>"><?php echo htmlspecialchars($message); ?></div>
+    <?php if(!isset($_SESSION['user_id'])): ?>
+    <div class="login_panel">
+    <p>Please log in to start sharing art.</p>
+    </div>
     <?php endif; ?>
 
-    <hr>
-    <h2>Gallery</h2>
+    <div class="feed_header">
+        <div class="feed_title">What's <span>poppin'</span></div>
+        <div class="feed_tabs">
+            <a href="?filter=recent" class="feed_tab <?php echo $filter === 'recent' ? 'active' : ''; ?>">Recent</a>
+            <a href="?filter=liked"  class="feed_tab <?php echo $filter === 'liked'  ? 'active' : ''; ?>">Top Liked</a>
+        </div>
+    </div>
 
+    <!--ask the user to upload post-->
     <?php if (empty($artworks)): ?>
-        <p>No artworks have been added yet.</p>
-    <?php else: ?>
-        <div class="gallery-list">
-            <?php foreach ($artworks as $artwork): ?>
-                <article class="gallery-item">
-                    <img
-                        src="<?php echo htmlspecialchars($artwork['ImageURL']); ?>"
-                        alt="<?php echo htmlspecialchars($artwork['Title']); ?>"
-                        class="gallery-image"
-                    >
-                    <h3><?php echo htmlspecialchars($artwork['Title']); ?></h3>
-                    <p><strong>By:</strong> <?php echo htmlspecialchars($artwork['UserName']); ?></p>
-                    <p><?php echo nl2br(htmlspecialchars($artwork['Description'])); ?></p>
-                    <p><strong>Date:</strong> <?php echo htmlspecialchars($artwork['CreationDate']); ?></p>
-                </article>
-            <?php endforeach; ?>
+        <div class="empty">
+            <h3>No artworks yet</h3>
+            <p>Be the first to upload something.</p>
         </div>
+    <?php else: ?>
+        <div class="gallery_grid">
+            <?php foreach ($artworks as $art): ?>
+            <?php $liked = in_array($art['art_ID'], $likedIds); ?>
+            <article class="gallery_card">
+        <div class="card_image_wrap">
+            <img src="<?php echo htmlspecialchars($art['ImageURL']); ?>"
+                 alt="<?php echo htmlspecialchars($art['Title']); ?>" >
+        </div>
+
+        <div class="card_body">
+            <div class="card_user">
+                <div class="card_avatar"><?php echo initials($art['UserName']); ?> </div>
+                <span class="card_username"><?php echo htmlspecialchars($art['UserName']); ?></span>
+            </div>
+
+            <div class="card_title"><?php echo htmlspecialchars($art['Title']); ?></div>
+            <?php if ($art['Description']): ?>
+                <div class="card_desc"><?php echo htmlspecialchars($art['Description']); ?></div>
+            <?php endif; ?>
+        
+            <div class="card_footer">
+            <?php if (isset($_SESSION['user_id'])): ?>
+                <button 
+                    class="like_btn <?php echo $liked ? 'liked' : ''; ?>" 
+                    data-id="<?php echo $art['art_ID']; ?>">
+                    <svg class="heart_icon" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    <span class="like_count"><?php echo $art['LikesCounter']; ?></span>
+                </button>
+            <?php else: ?>
+                <span class="like_btn">
+                    <svg class="heart_icon" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    <?php echo $art['LikesCounter']; ?>
+                </span>
+            <?php endif; ?>
+                 <span class="card_date"><?php echo htmlspecialchars($art['CreationDate']); ?></span>
+            <?php if (isset($_SESSION['user_id']) && $_SESSION['user_id'] === $art['user_id']): ?>
+                <form method="POST" action="delete.php" onsubmit="return confirm('Delete this artwork?')">
+                    <input type="hidden" name="art_id" value="<?php echo $art['art_ID']; ?>">
+                    <button type="submit" class="delete-btn"><span class="material_icons">delete</span></button>
+                </form>
+                <?php endif; ?>
+            </div>
+        </div>
+    </article>
+    <?php endforeach; ?>
+    </div>
     <?php endif; ?>
+</main>
+</div>
 
-    <script>
-    function handleCredentialResponse(response) {
-        const responsePayload = jwt_decode(response.credential);
-
-        if (!responsePayload) {
-            console.error("Login error.");
-            return;
-        }
-
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = 'login.php';
-
-        const fields = {
-            'google_id': responsePayload.sub,
-            'name': responsePayload.name,
-            'email': responsePayload.email
-        };
-
-        for (const key in fields) {
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = key;
-            input.value = fields[key];
-            form.appendChild(input);
-        }
-
-        document.body.appendChild(form);
-        form.submit();
+<script>
+function handleCredentialResponse(response) {
+    const responsePayload = jwt_decode(response.credential);
+    if (!responsePayload) {
+        console.error("Login error.");
+        return;
     }
-    </script>
-    
-    <script src="main.js"></script>
+
+
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = 'login.php';
+
+    const fields = { 
+        google_id: responsePayload.sub, 
+        name: responsePayload.name, 
+        email: responsePayload.email 
+    };
+
+    for (const key in fields){
+        const input = document.createElement('input');
+        input.type = 'hidden'; 
+        input.name = key;
+        input.value = fields[key];
+        form.appendChild(input);
+    }
+    document.body.appendChild(form);
+    form.submit();
+}
+    //show login or user info based on session
+    window.addEventListener('load', () => {
+    if (typeof google !== 'undefined') {
+        google.accounts.id.initialize({
+            client_id: "<?php echo $env['GOOGLE_CLIENT_ID']; ?>",
+            callback: handleCredentialResponse
+        });
+        google.accounts.id.renderButton(
+            document.querySelector('.g_id_signin'),
+            { theme: 'filled_black', size: 'medium' }
+        );
+    }
+});
+
+</script>
+
+<script src="main.js"> </script>
+<script> 
+    const avatarBtn = document.getElementById('avatarBtn');
+    const avatarDropdown = document.getElementById('avatarDropdown');
+
+    if (avatarBtn) {
+        avatarBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            avatarDropdown.classList.toggle('open');
+        });
+
+        document.addEventListener('click', () => {
+            avatarDropdown.classList.remove('open');
+        });
+}
+</script>
+<script>
+    const toggle = document.getElementById('modeToggle');
+    if (toggle) {
+    toggle.addEventListener('click', () => {
+        document.body.classList.toggle('light');
+    });
+}
+</script>
+
+<script>
+//prompt Google sign-in if just logged out
+const params = new URLSearchParams(window.location.search);
+if (params.get('loggedout') === '1') {
+    window.addEventListener('load', () => {
+        if (typeof google !== 'undefined') {
+            google.accounts.id.prompt();
+        }
+    });
+}
+</script>
+
+<script>
+    document.querySelectorAll('.like_btn[data-id]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+        const artId = btn.dataset.id;
+        const countEl = btn.querySelector('.like_count');
+
+        const res = await fetch('like.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `art_id=${artId}`
+        });
+
+        const data = await res.json();
+        if (data.success) {
+            countEl.textContent = data.count;
+            btn.classList.toggle('liked', data.liked);
+        }
+    });
+});
+</script>
 </body>
 </html>
+
+
