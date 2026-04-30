@@ -68,6 +68,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Location: ' . ($isSuccessMessage ? 'index.php' : 'upload.php'));
     exit;
 }
+
+function initials($name){
+    $parts = explode(' ', trim($name));
+    $ini = strtoupper(substr($parts[0], 0, 1));
+    if (count($parts) > 1) $ini .= strtoupper(substr(end($parts), 0, 1));
+    return $ini;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -75,20 +82,81 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload Art - Web Gallz</title>
-
-    <!--separate upload css file for now -->
-    <link href="upload.css" type="text/css" rel="stylesheet">
+    <link href="styles.css" rel="stylesheet">
+    <link href="upload.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
-    <!-- upload form -->
-    <div class="upload-container">
-        <h2>Upload Your Artwork</h2>
-        <p><a href="index.php">Back to Gallery</a></p>
 
-        <?php if ($message): ?>
-            <div id="upload-message" class="message<?php echo $isSuccessMessage ? ' success-popup' : ''; ?>" data-autohide="<?php echo $isSuccessMessage ? 'true' : 'false'; ?>"><?php echo htmlspecialchars($message); ?></div>
-        <?php endif; ?>
+<!-- Navbar -->
+<header class="topbar">
+    <div class="topbar_logo">Web Gallz</div>
+    <div class="topbar_actions">
+        <?php if (isset($_SESSION['user_id'])): ?>
 
+<!-- dark/Light toggle -->
+<button class="mode_toggle" id="modeToggle" title="Toggle theme">
+    <span class="toggle_track">
+        <span class="toggle_thumb"></span>
+    </span>
+</button>
+
+<!-- upload button -->
+<a href="upload.php" class="btn_upload">
+<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Upload </a>
+
+<!--Initial/ profile dropdown-->
+<div class="avatar_wrap">
+    <div class="avatar" id="avatarBtn">
+        <?php echo initials($_SESSION['user_name']); ?>
+    </div>
+    <div class="avatar_dropdown" id="avatarDropdown">
+        <div class="dropdown_name"><?php echo htmlspecialchars($_SESSION['user_name']); ?></div>
+        <hr class="dropdown_divider">
+        <a href="logout.php" class="dropdown_item">Logout</a>
+    </div>
+</div>
+<?php else: ?>
+
+<!-- Google Sign-In: removed sign-in placeholders on this page (user should be logged in) -->
+<?php endif; ?>
+
+</div>
+</header>
+
+<div class="layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+    <div>
+        <div class="sidebar_section">Browse</div>
+        <nav class="sidebar_nav">
+            <a href="index.php" class="sidebar_link">All Posts</a>
+            <a href="index.php?filter=liked" class="sidebar_link">Trending</a>
+        </nav>
+    </div>
+
+    <div>
+        <div class="sidebar_section">Categories</div>
+        <nav class="sidebar_nav">
+            <a href="#" class="sidebar_link">Illustration</a>
+            <a href="#" class="sidebar_link">Doodles</a>
+            <a href="#" class="sidebar_link">Photography</a>
+        </nav>
+    </div>
+    </aside>
+
+<!-- main content -->
+<main class="main">
+
+    <?php if ($message): ?>
+        <div id="upload-message" class="message<?php echo $isSuccessMessage ? ' success_popup' : ''; ?>" data-autohide="<?php echo $isSuccessMessage ? 'true' : 'false'; ?>"><?php echo htmlspecialchars($message); ?></div>
+    <?php endif; ?>
+
+    <div class="feed_header">
+        <div class="feed_title">Upload Your <span>Artwork</span></div>
+    </div>
+
+    <div style="max-width: 680px;">
         <form action="upload.php" method="POST" enctype="multipart/form-data">
             <div class="form-group">
                 <label for="title">Title</label>
@@ -97,21 +165,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
             <div class="form-group">
                 <label for="description">Description</label>
-                <textarea id="description" name="description" rows="3" required placeholder="Describe it."></textarea>
+                <textarea id="description" name="description" rows="4" required placeholder="Describe it."></textarea>
             </div>
 
             <div class="form-group">
                 <label>Select File</label>
-                <div class="drop-zone">
+                <label class="drop-zone">
                     <span class="drop-zone__prompt">Drag and drop it<br>or click to browse<br><small>(JPG, JPEG, PNG)</small></span>
-                    <input type="file" name="artwork" class="drop-zone__input" accept=".jpg, .jpeg, .png" required>
-                </div>
+                    <input id="artworkInput" type="file" name="artwork" class="drop-zone__input" accept=".jpg, .jpeg, .png" required>
+                </label>
             </div>
             
             <button type="submit" class="submit-btn">Upload It</button>
         </form>
     </div>
 
-<script src="upload.js"></script>
+</main>
+
+</div>
+<!-- scripts with forcing new copy of js files to be loaded -->
+<script src="main.js?v=<?php echo time(); ?>"></script>
+<script src="upload.js?v=<?php echo time(); ?>"></script>
+
 </body>
 </html>

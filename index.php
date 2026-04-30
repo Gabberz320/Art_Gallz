@@ -64,7 +64,7 @@ function initials($name){
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://cdn.jsdelivr.net/npm/jwt-decode/build/jwt-decode.min.js"></script>
 </head>
-<body>
+<body data-google-client-id="<?php echo htmlspecialchars($env['GOOGLE_CLIENT_ID']); ?>">
 
 <!-- Navbar -->
 <header class="topbar">
@@ -96,18 +96,8 @@ function initials($name){
 </div>
 <?php else: ?>
 
-<!-- Google Sign-In -->
-<div id="g_id_onload"
-    data-client_id="<?php echo htmlspecialchars($env['GOOGLE_CLIENT_ID']); ?>"
-    data-callback="handleCredentialResponse"
-    data-auto_prompt="false">
-</div>
-
-<div class="g_id_signin"
-    data-type="standard"
-    data-theme="filled_black"
-    data-size="medium">
-</div>
+<!-- Google Sign-In (programmatic initialization in main.js) -->
+<div class="g_id_signin"></div>
 <?php endif; ?>
 
 </div>
@@ -216,108 +206,7 @@ function initials($name){
 </main>
 </div>
 
-<script>
-function handleCredentialResponse(response) {
-    const responsePayload = jwt_decode(response.credential);
-    if (!responsePayload) {
-        console.error("Login error.");
-        return;
-    }
-
-
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = 'login.php';
-
-    const fields = { 
-        google_id: responsePayload.sub, 
-        name: responsePayload.name, 
-        email: responsePayload.email 
-    };
-
-    for (const key in fields){
-        const input = document.createElement('input');
-        input.type = 'hidden'; 
-        input.name = key;
-        input.value = fields[key];
-        form.appendChild(input);
-    }
-    document.body.appendChild(form);
-    form.submit();
-}
-    //show login or user info based on session
-    window.addEventListener('load', () => {
-    if (typeof google !== 'undefined') {
-        google.accounts.id.initialize({
-            client_id: "<?php echo $env['GOOGLE_CLIENT_ID']; ?>",
-            callback: handleCredentialResponse
-        });
-        google.accounts.id.renderButton(
-            document.querySelector('.g_id_signin'),
-            { theme: 'filled_black', size: 'medium' }
-        );
-    }
-});
-
-</script>
-
-<script src="main.js"> </script>
-<script> 
-    const avatarBtn = document.getElementById('avatarBtn');
-    const avatarDropdown = document.getElementById('avatarDropdown');
-
-    if (avatarBtn) {
-        avatarBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            avatarDropdown.classList.toggle('open');
-        });
-
-        document.addEventListener('click', () => {
-            avatarDropdown.classList.remove('open');
-        });
-}
-</script>
-<script>
-    const toggle = document.getElementById('modeToggle');
-    if (toggle) {
-    toggle.addEventListener('click', () => {
-        document.body.classList.toggle('light');
-    });
-}
-</script>
-
-<script>
-//prompt Google sign-in if just logged out
-const params = new URLSearchParams(window.location.search);
-if (params.get('loggedout') === '1') {
-    window.addEventListener('load', () => {
-        if (typeof google !== 'undefined') {
-            google.accounts.id.prompt();
-        }
-    });
-}
-</script>
-
-<script>
-    document.querySelectorAll('.like_btn[data-id]').forEach(btn => {
-    btn.addEventListener('click', async () => {
-        const artId = btn.dataset.id;
-        const countEl = btn.querySelector('.like_count');
-
-        const res = await fetch('like.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `art_id=${artId}`
-        });
-
-        const data = await res.json();
-        if (data.success) {
-            countEl.textContent = data.count;
-            btn.classList.toggle('liked', data.liked);
-        }
-    });
-});
-</script>
+<script src="main.js"></script>
 </body>
 </html>
 
