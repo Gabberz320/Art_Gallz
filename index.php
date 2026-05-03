@@ -63,21 +63,29 @@ function initials($name){
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://cdn.jsdelivr.net/npm/jwt-decode/build/jwt-decode.min.js"></script>
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            document.documentElement.classList.add(savedTheme);
+            document.documentElement.classList.add('no-transition');
+        })();
+    </script>
 </head>
 <body data-google-client-id="<?php echo htmlspecialchars($env['GOOGLE_CLIENT_ID']); ?>">
 
 <!-- Navbar -->
 <header class="topbar">
-    <div class="topbar_logo">Web Gallz</div>
+    <a href="index.php?filter=recent" class="topbar_logo">Web Gallz</a>
     <div class="topbar_actions">
-        <?php if (isset($_SESSION['user_id'])): ?>
 
-<!-- dark/Light toggle -->
-<button class="mode_toggle" id="modeToggle" title="Toggle theme">
-    <span class="toggle_track">
-        <span class="toggle_thumb"></span>
-    </span>
-</button>
+        <!-- dark/Light toggle -->
+        <button class="mode_toggle" id="modeToggle" title="Toggle theme">
+            <span class="toggle_track">
+                <span class="toggle_thumb"></span>
+            </span>
+        </button>
+
+        <?php if (isset($_SESSION['user_id'])): ?>
 
 <!-- upload button -->
 <a href="upload.php" class="btn_upload">
@@ -109,21 +117,11 @@ function initials($name){
     <div>
         <div class="sidebar_section">Browse</div>
         <nav class="sidebar_nav">
-            <a href="?filter=recent" class="sidebar_link <?php echo $filter === 'recent' ? 'active' : ''; ?>">All Posts</a>
-            <a href="?filter=liked"  class="sidebar_link <?php echo $filter === 'liked'  ? 'active' : ''; ?>">Trending</a>
+            <a href="index.php" class="sidebar_link">Home</a>
+            <a href="#" class="sidebar_link">Collage</a>
+            <a href="#" class="sidebar_link">My Uploads</a>
         </nav>
     </div>
-
-<!-- add the link for the categories-->
-        <div>
-            <div class="sidebar_section">Categories</div>
-            <nav class="sidebar_nav">
-                <a href="#" class="sidebar_link">Illustration</a>
-                <a href="#" class="sidebar_link">Doodles</a>
-                <a href="#" class="sidebar_link">Photography</a>
-            </nav>
-        </div>
-
     </aside>
 
 <!-- main feed -->
@@ -142,7 +140,7 @@ function initials($name){
     <?php endif; ?>
 
     <div class="feed_header">
-        <div class="feed_title">What's <span>poppin'</span></div>
+        <div class="feed_title">What's poppin'</div>
         <div class="feed_tabs">
             <a href="?filter=recent" class="feed_tab <?php echo $filter === 'recent' ? 'active' : ''; ?>">Recent</a>
             <a href="?filter=liked"  class="feed_tab <?php echo $filter === 'liked'  ? 'active' : ''; ?>">Top Liked</a>

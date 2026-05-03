@@ -66,6 +66,7 @@ a {
 	align-items: center;
 	padding: 10px 20px 0px 30px;
 	gap: 15px;
+	/* padding: 0px 25px; */
 	z-index: 100;
 }
 
@@ -78,18 +79,17 @@ a {
 	-webkit-text-fill-color: transparent;
 	background-clip: text;
 	white-space: nowrap;
+	text-decoration: none;
 }
-
 
 .topbar_actions {
 	display: flex;
-	align-items: center;
 	gap: 0.75rem;
-	margin-left: auto; 
+	margin-left: auto;
 }
 
 /* color mode button */
-body.light {
+.light {
 	--bg: #f8f8fc;
 	--surface: #ffffff;
 	--surface2: #f0f0f8;
@@ -126,11 +126,15 @@ body.light {
 	height: 16px;
 	border-radius: 50%;
 	background: var(--gradient);
-	transition: transform 0.2s;
+	transition: transform 0.2s ease;
 }
 
-body.light .toggle_thumb {
+.mode_toggle.active .toggle_thumb {
 	transform: translateX(18px);
+}
+
+.no-transition .toggle_thumb {
+	transition: none;
 }
 
 .btn_upload {
@@ -248,10 +252,6 @@ body.light .toggle_thumb {
 	font-family: 'Syne', sans-serif;
 	font-size: 30px;
 	font-weight: 700;
-	color: var(--text-dim); 
-}
-
-.feed_title span {
 	background: var(--gradient);
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
@@ -264,16 +264,15 @@ body.light .toggle_thumb {
 	background: var(--surface);
 	border: 1px solid var(--border);
 	border-radius: 20px;
-	padding-right: 20px;
+	padding: 0px 20px;
 }
 
 .feed_tab {
-	margin-right: 10px;
 	padding: 5px 20px;
 	border-radius: 16px;
 	font-size: 15px;
 	cursor: pointer;
-	transition: all 0.2s;
+	transition: all 0.2s ease;
 	color: var(--text-muted);
 	border: none;
 	background: none;
@@ -584,9 +583,12 @@ body.light .toggle_thumb {
 }
 
 /* ── GOOGLE btn── */
-.g_id_signin { 
-	display: inline-flex;
-}
+/* .g_id_signin { 
+	display: flex;
+	justify-content: right;
+	align-items: right;
+	margin: 0;
+} */
 
 
 /* ── setting responsive ── */
@@ -597,4 +599,5 @@ body.light .toggle_thumb {
 	.main { 
 		margin-left: 0;
 	}
+
 }

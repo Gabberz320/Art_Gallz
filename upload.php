@@ -134,7 +134,7 @@ function initials($name){
 
 <!-- Navbar -->
 <header class="topbar">
-    <div class="topbar_logo">Web Gallz</div>
+    <a href="index.php?filter=recent" class="topbar_logo">Web Gallz</a>
     <div class="topbar_actions">
         <?php if (isset($_SESSION['user_id'])): ?>
 
@@ -174,17 +174,9 @@ function initials($name){
     <div>
         <div class="sidebar_section">Browse</div>
         <nav class="sidebar_nav">
-            <a href="index.php" class="sidebar_link">All Posts</a>
-            <a href="index.php?filter=liked" class="sidebar_link">Trending</a>
-        </nav>
-    </div>
-
-    <div>
-        <div class="sidebar_section">Categories</div>
-        <nav class="sidebar_nav">
-            <a href="#" class="sidebar_link">Illustration</a>
-            <a href="#" class="sidebar_link">Doodles</a>
-            <a href="#" class="sidebar_link">Photography</a>
+            <a href="index.php" class="sidebar_link">Home</a>
+            <a href="#" class="sidebar_link">Collage</a>
+            <a href="#" class="sidebar_link">My Uploads</a>
         </nav>
     </div>
     </aside>
