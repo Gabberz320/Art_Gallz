@@ -1,0 +1,61 @@
+
+.toolbar {
+    width: 260px;
+    background: var(--panel-bg);
+    border-right: 1px solid #331033;
+    padding: 20px;
+    height: 100%;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+.workspace {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-image: radial-gradient(#1e051e 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+.canvas-wrapper {
+    box-shadow: 0 0 40px rgba(0,0,0,0.5);
+    border: 2px solid #331033;
+}
+
+.tool-group { margin-bottom: 25px; }
+.tool-group h4 { font-size: 12px; color: #555; margin-bottom: 10px; }
+.tool-group label { display: block; font-size: 11px; color: #888; margin-bottom: 5px; }
+
+.tool-btn {
+    width: 100%;
+    background: #1e051e;
+    border: 1px solid #441a44;
+    color: white;
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.tool-btn:hover { border-color: var(--neon-purple); }
+
+.tool-input {
+    width: 100%;
+    background: #000;
+    border: 1px solid #441a44;
+    color: white;
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+.btn-primary {
+    background: var(--neon-purple);
+    border: none;
+    color: white;
+    padding: 8px 15px;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+}
