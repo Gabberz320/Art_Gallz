@@ -1,3 +1,18 @@
+function applyTheme(theme) {
+    document.documentElement.classList.remove('light', 'dark');
+    document.documentElement.classList.add(theme);
+    localStorage.setItem('theme', theme);
+
+    const toggle = document.getElementById('modeToggle');
+    if (toggle) {
+        toggle.classList.toggle('active', theme === 'light');
+    }
+}
+
+// load theme on every page
+const savedTheme = localStorage.getItem('theme') || 'dark';
+applyTheme(savedTheme);
+
 // Auto-hide upload message after 3 seconds
 const uploadMessage = document.getElementById("upload-message");
 if (uploadMessage && uploadMessage.dataset.autohide === "true") {
@@ -92,7 +107,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const toggle = document.getElementById('modeToggle');
     if (toggle) {
         toggle.addEventListener('click', () => {
-            document.body.classList.toggle('light');
+            const current = localStorage.getItem('theme') || 'dark';
+            const next = current === 'light' ? 'dark' : 'light';
+            applyTheme(next);
         });
     }
 
@@ -113,4 +130,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+});
+
+window.addEventListener('load', () => {
+    document.documentElement.classList.remove('no-transition');
 });
