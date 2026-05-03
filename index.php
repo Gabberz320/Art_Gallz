@@ -99,6 +99,8 @@ function initials($name){
     <div class="avatar_dropdown" id="avatarDropdown">
         <div class="dropdown_name"><?php echo htmlspecialchars($_SESSION['user_name']); ?></div>
         <hr class="dropdown_divider">
+        <a href="#" class="dropdown_item my_uploads_dropdown">My Uploads</a>
+        <hr class="dropdown_divider second_divider">
         <a href="logout.php" class="dropdown_item">Logout</a>
     </div>
 </div>
@@ -118,7 +120,7 @@ function initials($name){
         <div class="sidebar_section">Browse</div>
         <nav class="sidebar_nav">
             <a href="index.php" class="sidebar_link">Home</a>
-            <a href="#" class="sidebar_link">Collage</a>
+            <a href="collage.php" class="sidebar_link">Collage</a>
             <a href="#" class="sidebar_link">My Uploads</a>
         </nav>
     </div>
@@ -140,7 +142,9 @@ function initials($name){
     <?php endif; ?>
 
     <div class="feed_header">
-        <div class="feed_title">What's poppin'</div>
+        <div class="feed_title">
+            <?php echo $filter === 'liked' ? "What's trendin'" : "What's poppin'" ?>
+        </div>
         <div class="feed_tabs">
             <a href="?filter=recent" class="feed_tab <?php echo $filter === 'recent' ? 'active' : ''; ?>">Recent</a>
             <a href="?filter=liked"  class="feed_tab <?php echo $filter === 'liked'  ? 'active' : ''; ?>">Top Liked</a>

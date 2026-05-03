@@ -26,7 +26,6 @@
 	padding: 0; 
 }
 
-
 body {
 	background: var(--bg);
 	color: var(--text);
@@ -568,6 +567,10 @@ a {
 	margin: 0.4rem 0;
 }
 
+.my_uploads_dropdown, .second_divider {
+	display: none !important;
+}
+
 .dropdown_item {
 	display: block;
 	padding: 0.5rem 0.75rem;
@@ -582,20 +585,16 @@ a {
 	color: var(--accent);
 }
 
-/* ── GOOGLE btn── */
-/* .g_id_signin { 
-	display: flex;
-	justify-content: right;
-	align-items: right;
-	margin: 0;
-} */
-
-
 /* ── setting responsive ── */
 @media (max-width: 768px) {
 	.sidebar {
 		display: none;
 	}
+
+	.my_uploads_dropdown, .second_divider {
+		display: block !important;
+	}
+	
 	.main { 
 		margin-left: 0;
 	}
