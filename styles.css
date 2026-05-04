@@ -649,3 +649,43 @@ a {
 		left: 0;
 	}
 }
+
+/* smallest mobile */
+@media (max-width: 510px) {
+	.topbar {
+		padding: 10px 15px 5px 15px; 
+		gap: 10px;
+	}
+
+    /* smaller logo */
+	.topbar_logo {
+		font-size: 20px; 
+	}
+
+	.topbar_actions {
+		gap: 8px; 
+	}
+
+	.btn_upload {
+		padding: 6px 12px; 
+		font-size: 13px; 
+	}
+
+	.avatar {
+		width: 30px; 
+		height: 30px;
+		font-size: 13px;
+	}
+
+	.toggle_track {
+		width: 36px;
+		height: 20px;
+	}
+	.toggle_thumb {
+		width: 14px;
+		height: 14px;
+	}
+	.mode_toggle.active .toggle_thumb {
+		transform: translateX(16px);
+	}
+}
