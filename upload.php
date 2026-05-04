@@ -175,8 +175,9 @@ function initials($name){
         <div class="sidebar_section">Browse</div>
         <nav class="sidebar_nav">
             <a href="index.php" class="sidebar_link">Home</a>
-            <a href="#" class="sidebar_link">Collage</a>
-            <a href="#" class="sidebar_link">My Uploads</a>
+            <a href="collage.php" class="sidebar_link">Collage</a>
+            <a href="doodle.php" class="sidebar_link">Doodle</a>
+            <a href="index.php?view=mine&filter=recent" class="sidebar_link">My Uploads</a>
         </nav>
     </div>
     </aside>
