@@ -40,7 +40,8 @@ function initials($name){
         </button>
 
         <?php if (isset($_SESSION['user_id'])): ?>
-            <button class="btn_upload" onclick="postCollageToGallery()">Post to Gallery</button>
+            <a href="upload.php" class="btn_upload">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Upload </a>
             <div class="avatar_wrap">
                 <div class="avatar" id="avatarBtn"><?php echo initials($_SESSION['user_name']); ?></div>
                 <div class="avatar_dropdown" id="avatarDropdown">
@@ -112,9 +113,9 @@ function initials($name){
             </div>
 
             <div style="padding: 20px 15px;">
-                <button class="collage-btn" style="background: rgba(255, 0, 0, 0.2); color: #ff4d4d; border: 1px solid #ff4d4d;" onclick="clearCanvas()">
+                <!-- <button class="collage-btn" style="background: rgba(255, 0, 0, 0.2); color: #ff4d4d; border: 1px solid #ff4d4d;" onclick="clearCanvas()">
                     <span class="material-icons" style="font-size: 16px; vertical-align: middle;">delete</span> Clear All
-                </button>
+                </button> -->
             </div>
         </div>
     </aside>
@@ -122,6 +123,10 @@ function initials($name){
     <main class="main" style="padding: 0; background: var(--bg);">
         <div class="feed_header" style="padding: 20px 40px;">
             <div class="feed_title">Collage Studio</div>
+            <div class="feed_tabs">
+                <button class="feed_tab" onclick="clearCanvas()">Clear Board</button>
+                <button class="feed_tab active" id="postCollageBtn" onclick="postCollageToGallery()">Post Collage</button>
+            </div>
         </div>
 
         <div id="canvas-area" style="width: 100%; height: calc(100vh - 160px); display: flex; justify-content: center; align-items: center;">
