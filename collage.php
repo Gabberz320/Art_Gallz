@@ -127,6 +127,10 @@ function initials($name){
         <div id="canvas-area" style="width: 100%; height: calc(100vh - 160px); display: flex; justify-content: center; align-items: center;">
             <canvas id="mainCanvas" style="background: white; border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);"></canvas>
         </div>
+
+        <form id="collageForm" method="POST" action="save_collage.php" style="display:none;">
+            <input type="hidden" name="image" id="collageImageInput">
+        </form>
     </main>
 </div>
 

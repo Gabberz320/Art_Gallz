@@ -329,3 +329,30 @@ function render() {
         }
     });
 }
+
+window.postCollageToGallery = function() {
+    if (!canvas || !canvas.width || !canvas.height) {
+        alert('Canvas is not ready yet. Please try again in a moment.');
+        return;
+    }
+
+    const hasContent = shapes.length > 0;
+    if (!hasContent) {
+        const proceed = confirm('Your collage is empty. Post a blank canvas anyway?');
+        if (!proceed) {
+            return;
+        }
+    }
+
+    const imageData = canvas.toDataURL('image/png');
+    const input = document.getElementById('collageImageInput');
+    const form = document.getElementById('collageForm');
+
+    if (!input || !form) {
+        alert('Posting form is missing. Please refresh and try again.');
+        return;
+    }
+
+    input.value = imageData;
+    form.submit();
+};
