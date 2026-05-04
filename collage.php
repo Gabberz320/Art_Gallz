@@ -57,7 +57,7 @@ function initials($name){
 </header>
 
 <div class="layout">
-    <aside class="sidebar" style="overflow-x: hidden;">
+    <aside class="sidebar" id="desktop-sidebar" style="overflow-x: hidden;">
         <div>
             <div class="sidebar_section">Browse</div>
             <nav class="sidebar_nav">
@@ -70,7 +70,7 @@ function initials($name){
             </nav>
         </div>
 
-        <div style="margin-top: 2rem;">
+        <div id="tools-container" style="margin-top: 2rem; width: 100%;">
             <div class="sidebar_section">ELEMENTS</div>
             <nav class="sidebar_nav" style="display: flex; flex-direction: column; gap: 8px; padding: 0 15px;">
                 <button class="collage-btn" onclick="addShape('rect')">Color Block</button>
@@ -103,24 +103,21 @@ function initials($name){
                 </div>
             </div>
 
-            <div class="sidebar_section">APPEARANCE</div>
-            <div style="padding: 0 15px;">
-                <label style="font-size: 10px; color: var(--accent); font-weight: bold; display: block; margin-bottom: 5px;">COLOR</label>
-                <input type="color" id="colorPicker" value="#ffffff" style="width: 100%; height: 40px; border: none; background: none; cursor: pointer;">
-                
-                <label style="font-size: 10px; color: var(--accent); font-weight: bold; display: block; margin-top: 20px; margin-bottom: 5px;">TRANSPARENCY</label>
-                <input type="range" min="0" max="100" value="100" id="opacityPicker" style="width: 100%; accent-color: var(--accent);">
-            </div>
-
-            <div style="padding: 20px 15px;">
-                <!-- <button class="collage-btn" style="background: rgba(255, 0, 0, 0.2); color: #ff4d4d; border: 1px solid #ff4d4d;" onclick="clearCanvas()">
-                    <span class="material-icons" style="font-size: 16px; vertical-align: middle;">delete</span> Clear All
-                </button> -->
+            <div class="sidebar_section" style="margin-top: 20px;">APPEARANCE</div>
+            <div class="appearance-group" style="padding: 0 15px;">
+                <div>
+                    <label style="font-size: 10px; color: var(--accent); font-weight: bold; display: block; margin-bottom: 5px;">COLOR</label>
+                    <input type="color" id="colorPicker" value="#ffffff" style="width: 100%; height: 40px; border: none; background: none; cursor: pointer;">
+                </div>
+                <div>
+                    <label class="transparency-label" style="font-size: 10px; color: var(--accent); font-weight: bold; display: block; margin-top: 20px; margin-bottom: 5px;">TRANSPARENCY</label>
+                    <input type="range" min="0" max="100" value="100" id="opacityPicker" style="width: 100%; accent-color: var(--accent);">
+                </div>
             </div>
         </div>
     </aside>
 
-    <main class="main" style="padding: 0; background: var(--bg);">
+    <main class="main" style="padding: 0; background: var(--bg); display: flex; flex-direction: column;">
         <div class="feed_header" style="padding: 20px 40px;">
             <div class="feed_title">Collage Studio</div>
             <div class="feed_tabs">
@@ -129,9 +126,11 @@ function initials($name){
             </div>
         </div>
 
-        <div id="canvas-area" style="width: 100%; height: calc(100vh - 160px); display: flex; justify-content: center; align-items: center;">
+        <div id="canvas-area" class="canvas-container">
             <canvas id="mainCanvas" style="background: white; border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);"></canvas>
         </div>
+
+        <div id="mobile-tools-dest" style="padding: 0 20px 20px 20px;"></div>
 
         <form id="collageForm" method="POST" action="save_collage.php" style="display:none;">
             <input type="hidden" name="image" id="collageImageInput">
@@ -157,6 +156,32 @@ function initials($name){
     color: white;
 }
 </style>
+
+<script>
+    function relocateTools() {
+        const tools = document.getElementById('tools-container');
+        const destMobile = document.getElementById('mobile-tools-dest');
+        const destDesktop = document.getElementById('desktop-sidebar');
+
+        if (!tools || !destMobile || !destDesktop) return;
+
+        // If screen is mobile-sized, move tools under the canvas
+        if (window.innerWidth <= 900) {
+            if (tools.parentElement !== destMobile) {
+                tools.style.marginTop = '0';
+                destMobile.appendChild(tools);
+            }
+        } else {
+            // If screen is desktop-sized, put tools back in the sidebar
+            if (tools.parentElement !== destDesktop) {
+                tools.style.marginTop = '2rem';
+                destDesktop.appendChild(tools);
+            }
+        }
+    }
+    window.addEventListener('resize', relocateTools);
+    document.addEventListener('DOMContentLoaded', relocateTools);
+</script>
 
 <script src="main.js"></script>
 <script src="collage.js"></script>

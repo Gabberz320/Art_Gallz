@@ -59,3 +59,66 @@
     font-weight: bold;
     cursor: pointer;
 }
+
+/* --- Canvas Desktop Constraints --- */
+.canvas-container {
+    width: 100%;
+    height: calc(100vh - 160px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* --- Mobile Bottom Control Panel Styling --- */
+@media (max-width: 900px) {
+    /* Target the ID directly to override styles.css and kill the dead space */
+    #canvas-area {
+        height: auto !important;
+        min-height: 0 !important; /* This removes the massive gap */
+        padding-bottom: 20px !important;
+        padding-top: 10px !important;
+    }
+
+    /* Restyle tools to look like a bottom dashboard */
+    #tools-container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        background: var(--surface);
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        margin-bottom: 30px;
+    }
+
+    /* Put Element buttons side-by-side */
+    #tools-container .sidebar_nav {
+        flex-direction: row !important;
+        flex-wrap: wrap;
+        padding: 0 !important;
+        gap: 10px;
+    }
+
+    #tools-container .collage-btn {
+        flex: 1 1 calc(33% - 10px);
+        min-width: 100px;
+        text-align: center;
+        font-size: 13px;
+    }
+
+    /* Put Color and Transparency side-by-side */
+    .appearance-group {
+        display: flex;
+        flex-direction: row;
+        gap: 20px;
+        padding: 0 !important;
+    }
+
+    .appearance-group > div {
+        flex: 1;
+    }
+
+    .transparency-label {
+        margin-top: 0 !important; /* Removes the desktop spacing */
+    }
+}
