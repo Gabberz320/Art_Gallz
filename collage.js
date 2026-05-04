@@ -374,6 +374,10 @@ window.postCollageToGallery = function() {
         }
     }
 
+    selectedShape = null;
+    updateSidebar();
+    render();
+
     const imageData = canvas.toDataURL('image/png');
     const input = document.getElementById('collageImageInput');
     const form = document.getElementById('collageForm');
