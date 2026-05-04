@@ -261,6 +261,15 @@ function updateSidebar() {
     } else {
         document.getElementById('text-group').style.display = 'none';
     }
+    // keep color/opacity controls in sync with selection or defaults
+    if (selectedShape) {
+        if (colorPicker) colorPicker.value = selectedShape.color || currentColor;
+        if (opacityPicker) opacityPicker.value = Math.round((selectedShape.opacity || 1) * 100);
+        console.log('Selected shape', selectedShape.type, 'color set to', colorPicker ? colorPicker.value : 'n/a');
+    } else {
+        if (colorPicker) colorPicker.value = currentColor;
+        if (opacityPicker) opacityPicker.value = Math.round(currentOpacity * 100);
+    }
 }
 
 function wrapText(context, text, x, y, maxWidth, lineHeight) {
@@ -356,3 +365,29 @@ window.postCollageToGallery = function() {
     input.value = imageData;
     form.submit();
 };
+
+// Color and opacity controls
+if (colorPicker) {
+    colorPicker.addEventListener('input', (e) => {
+        const val = e.target.value;
+        if (selectedShape) {
+            selectedShape.color = val;
+            render();
+        } else {
+            currentColor = val;
+        }
+    });
+}
+
+if (opacityPicker) {
+    opacityPicker.addEventListener('input', (e) => {
+        const pct = parseInt(e.target.value || '100', 10);
+        const val = Math.max(0, Math.min(100, pct)) / 100;
+        if (selectedShape) {
+            selectedShape.opacity = val;
+            render();
+        } else {
+            currentOpacity = val;
+        }
+    });
+}
