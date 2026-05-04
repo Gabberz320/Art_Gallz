@@ -18,13 +18,34 @@ let startX, startY;
 let currentColor = '#ffffff';
 let currentOpacity = 1.0;
 const gridSize = 10; 
+const BASE_CANVAS_WIDTH = 800;
+const BASE_CANVAS_HEIGHT = 500;
 
 function init() {
-    canvas.width = 800;
-    canvas.height = 500;
+    resizeCanvas();
     render();
 }
 window.onload = init;
+
+function resizeCanvas() {
+    const canvasArea = document.getElementById('canvas-area');
+    if (!canvasArea) return;
+
+    const availableWidth = Math.max(320, canvasArea.clientWidth - 32);
+    const width = Math.min(BASE_CANVAS_WIDTH, availableWidth);
+    const height = Math.round(width * (BASE_CANVAS_HEIGHT / BASE_CANVAS_WIDTH));
+
+    canvas.width = width;
+    canvas.height = height;
+}
+
+window.addEventListener('resize', function() {
+    const hasContent = shapes.length > 0;
+    resizeCanvas();
+    if (hasContent) {
+        render();
+    }
+});
 
 /**
  * DELETE LOGIC

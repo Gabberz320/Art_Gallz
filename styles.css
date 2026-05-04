@@ -176,6 +176,7 @@ a {
 .layout {
 	display: flex;
 	padding-top: 60px;
+	padding-left: var(--sidebar-w);
 	position: relative;
 	z-index: 1;
 }
@@ -232,7 +233,8 @@ a {
 
 /* ── main class── */
 .main{
-	margin-left: 200px;
+	/* layout provides left padding now; remove fixed margin to avoid overlap */
+	margin-left: 0;
 	flex: 1;
 	padding: 2rem 1.5rem;
 	min-width: 0;
