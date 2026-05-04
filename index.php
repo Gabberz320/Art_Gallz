@@ -172,7 +172,8 @@ function initials($name){
             <div class="sidebar_section">Browse</div>
             <nav class="sidebar_nav">
                 <a href="?view=all&filter=recent" class="sidebar_link <?php echo $view === 'all' ? 'active' : ''; ?>">Home</a>
-                <a href="#" class="sidebar_link">Collage</a>
+                <a href="collage.php" class="sidebar_link">Collage</a>
+                <a href="doodle.php" class="sidebar_link">Doodle</a>
                 
                 <?php if(isset($_SESSION['user_id'])): ?>
                     <a href="?view=mine&filter=recent" class="sidebar_link <?php echo $view === 'mine' ? 'active' : ''; ?>">My Uploads</a>

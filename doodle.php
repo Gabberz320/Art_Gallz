@@ -72,6 +72,9 @@ function initials($name){
                 <a href="index.php" class="sidebar_link">Home</a>
                 <a href="collage.php" class="sidebar_link">Collage</a>
                 <a href="doodle.php" class="sidebar_link active">Doodle</a>
+                <?php if (isset($_SESSION['user_id'])): ?>
+                    <a href="index.php?view=mine&filter=recent" class="sidebar_link">My Uploads</a>
+                <?php endif; ?>
             </nav>
         </div>
 
