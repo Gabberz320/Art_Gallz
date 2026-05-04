@@ -7,7 +7,9 @@ CREATE TABLE Users (
     user_id INT PRIMARY KEY AUTO_INCREMENT,
     oauthID VARCHAR(255) UNIQUE,
     Name VARCHAR(100),
-    Email VARCHAR(100)
+    Email VARCHAR(100) UNIQUE,
+    PasswordHash VARCHAR(255),
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 -- artwork ID - primary key auto increment -- tied to user ID as foreign key
 -- title - string

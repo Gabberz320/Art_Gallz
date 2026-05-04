@@ -146,7 +146,9 @@ function initials($name){
 </div>
 <?php else: ?>
 
-<!-- Google Sign-In (programmatic initialization in main.js) -->
+<!-- Local auth links + Google Sign-In -->
+<a href="login_form.php" class="btn_upload" style="padding:6px 12px;font-size:14px;">Log in</a>
+<a href="register.php" class="btn_upload" style="padding:6px 12px;font-size:14px;">Register</a>
 <div class="g_id_signin"></div>
 <?php endif; ?>
 

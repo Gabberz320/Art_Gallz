@@ -50,6 +50,45 @@ function resolveRedirectTarget(string $fallback = 'index.php'): string {
 
 $redirectTarget = resolveRedirectTarget('index.php');
 
+// Local email/password login
+if (isset($_POST['email']) && isset($_POST['password'])) {
+    $email = trim((string)$_POST['email']);
+    $password = $_POST['password'];
+
+    try {
+        $stmt = $pdo->prepare("SELECT user_id, Name, PasswordHash, oauthID FROM Users WHERE Email = ?");
+        $stmt->execute([$email]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$user) {
+            // no such user
+            header('Location: login_form.php');
+            exit;
+        }
+
+        if (empty($user['PasswordHash'])) {
+            // account exists but no password set (probably OAuth-only)
+            header('Location: login_form.php');
+            exit;
+        }
+
+        if (!password_verify($password, $user['PasswordHash'])) {
+            header('Location: login_form.php');
+            exit;
+        }
+
+        // authenticated
+        $_SESSION['user_id'] = $user['user_id'];
+        $_SESSION['user_name'] = $user['Name'];
+        $_SESSION['user_email'] = $email;
+
+        header('Location: ' . $redirectTarget);
+        exit;
+    } catch (Exception $e) {
+        die('Database error: ' . $e->getMessage());
+    }
+}
+
 // sent by our js function in index.php
 if (isset($_POST['google_id'])) {
     $oauth_id = $_POST['google_id'];
