@@ -56,8 +56,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <a href="index.php?filter=recent" class="topbar_logo">Web Gallz</a>
     <div class="topbar_actions">
         <a href="index.php" class="btn_upload">Home</a>
-        <a href="register.php" class="btn_upload" style="padding:6px 12px; font-size:14px;">Register</a>
-        <a href="login_form.php" class="btn_upload" style="padding:6px 12px; font-size:14px;">Log in</a>
+        <a href="register.php" class="btn_upload topbar_auth_btn">Register</a>
+        <a href="login_form.php" class="btn_upload topbar_auth_btn">Log in</a>
         <div class="g_id_signin"></div>
     </div>
 </header>

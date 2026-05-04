@@ -69,7 +69,14 @@ function handleCredentialResponse(response) {
             }
             const signinEl = document.querySelector('.g_id_signin');
             if (signinEl && window._gsiInitialized) {
-                google.accounts.id.renderButton(signinEl, { theme: 'filled_black', size: 'medium' });
+                const isSmall = window.matchMedia('(max-width: 510px)').matches;
+                google.accounts.id.renderButton(signinEl, {
+                    theme: 'filled_black',
+                    size: isSmall ? 'small' : 'medium',
+                    text: isSmall ? 'signin' : 'signin_with',
+                    width: isSmall ? 92 : 170,
+                    shape: 'rect'
+                });
             }
             return true;
         }
