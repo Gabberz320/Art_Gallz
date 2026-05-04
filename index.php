@@ -32,31 +32,33 @@ if (isset($_SESSION['upload_flash_message'])) {
 //     $artworks = [];
 // }
 
-// filter for Browse
+// view AND filter
+$view = $_GET['view'] ?? 'all';
 $filter = $_GET['filter'] ?? 'recent';
 
-// If they try to access "My Uploads" but aren't logged in, redirect them to "recent"
-if ($filter === 'my_uploads' && !isset($_SESSION['user_id'])) {
-    $filter = 'recent';
+// If they try to access "My Uploads" but aren't logged in, redirect them to "all"
+if ($view === 'mine' && !isset($_SESSION['user_id'])) {
+    $view = 'all';
 }
 
 try {
+    // filter` for HOW to show 
     $order = match($filter) {
-        'recent'     => 'a.art_ID DESC',
-        'liked'      => 'a.LikesCounter DESC',
-        'my_uploads' => 'a.art_ID DESC', // order their uploads by newest first
-        default      => 'a.LikesCounter DESC, a.art_ID DESC',
+        'recent' => 'a.art_ID DESC',
+        'liked'  => 'a.LikesCounter DESC, a.art_ID DESC',
+        default  => 'a.art_ID DESC',
     };
 
-    // build the WHERE clause 
+    // filter for WHICH artworks to show
     $whereClause = '';
     $params = [];
 
-    if ($filter === 'my_uploads') {
+    if ($view === 'mine') {
         $whereClause = "WHERE a.user_id = :user_id";
         $params['user_id'] = $_SESSION['user_id'];
     }
 
+    //  combine into one query with WHERE and ORDER clauses
     $sql = "SELECT a.art_ID, a.user_id, a.Title, a.Description, 
                    a.CreationDate, a.ImageURL, a.LikesCounter, u.Name AS UserName
             FROM Artworks a
@@ -167,11 +169,11 @@ function initials($name){
         <div>
             <div class="sidebar_section">Browse</div>
             <nav class="sidebar_nav">
-                <a href="index.php" class="sidebar_link">Home</a>
+                <a href="?view=all&filter=recent" class="sidebar_link <?php echo $view === 'all' ? 'active' : ''; ?>">Home</a>
                 <a href="#" class="sidebar_link">Collage</a>
-            
+                
                 <?php if(isset($_SESSION['user_id'])): ?>
-                    <a href="?filter=my_uploads" class="sidebar_link <?php echo $filter === 'my_uploads' ? 'active' : ''; ?>">My Uploads</a>
+                    <a href="?view=mine&filter=recent" class="sidebar_link <?php echo $view === 'mine' ? 'active' : ''; ?>">My Uploads</a>
                 <?php endif; ?>
             </nav>
         </div>
@@ -192,11 +194,19 @@ function initials($name){
     </div>
     <?php endif; ?>
 
-    <div class="feed_header">
+    <!-- <div class="feed_header">
         <div class="feed_title">What's poppin'</div>
         <div class="feed_tabs">
             <a href="?filter=recent" class="feed_tab <?php echo $filter === 'recent' ? 'active' : ''; ?>">Recent</a>
             <a href="?filter=liked"  class="feed_tab <?php echo $filter === 'liked'  ? 'active' : ''; ?>">Top Liked</a>
+        </div>
+    </div> -->
+
+    <div class="feed_header">
+        <div class="feed_title">What's poppin'</div>
+        <div class="feed_tabs">
+            <a href="?view=<?php echo htmlspecialchars($view); ?>&filter=recent" class="feed_tab <?php echo $filter === 'recent' ? 'active' : ''; ?>">Recent</a>
+            <a href="?view=<?php echo htmlspecialchars($view); ?>&filter=liked"  class="feed_tab <?php echo $filter === 'liked'  ? 'active' : ''; ?>">Top Liked</a>
         </div>
     </div>
 
