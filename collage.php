@@ -18,6 +18,8 @@ function initials($name){
     <link href="styles.css" rel="stylesheet">
     <link rel="stylesheet" href="collage.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/jwt-decode/build/jwt-decode.min.js"></script>
     
     <script>
         (function () {
@@ -48,7 +50,7 @@ function initials($name){
                 </div>
             </div>
         <?php else: ?>
-            <a href="login.php" class="btn_upload" style="text-decoration:none;">Login</a>
+            <div class="g_id_signin"></div>
         <?php endif; ?>
     </div>
 </header>

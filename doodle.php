@@ -18,6 +18,8 @@ function initials($name){
     <link href="styles.css" rel="stylesheet">
     <link href="doodle.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/jwt-decode/build/jwt-decode.min.js"></script>
     <script>
         (function () {
             const savedTheme = localStorage.getItem('theme') || 'dark';

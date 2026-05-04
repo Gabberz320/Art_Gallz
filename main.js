@@ -31,13 +31,16 @@ function handleCredentialResponse(response) {
         console.error("Login error.");
         return;
     }
+
+    const redirectTarget = `${window.location.pathname}${window.location.search}${window.location.hash}`;
     const form = document.createElement('form');
     form.method = 'POST';
     form.action = 'login.php';
     const fields = { 
         google_id: responsePayload.sub, 
         name: responsePayload.name, 
-        email: responsePayload.email 
+        email: responsePayload.email,
+        redirect_to: redirectTarget
     };
     for (const key in fields) {
         const input = document.createElement('input');
