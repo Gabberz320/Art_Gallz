@@ -90,6 +90,25 @@ if (params.get('loggedout') === '1') {
 
 // DOM-dependent code - wait for page to load
 document.addEventListener('DOMContentLoaded', () => {
+    // toggle mobile sidebar and close on outside click
+    const mobileBtn = document.getElementById('mobileMenuBtn');
+    const sidebar = document.querySelector('.sidebar');
+    
+    if (mobileBtn && sidebar) {
+        // toggle menu when clicking the button
+        mobileBtn.addEventListener('click', (e) => {
+            sidebar.classList.toggle('open');
+            e.stopPropagation(); 
+        });
+
+        // close menu when clicking anywhere else
+        document.addEventListener('click', (e) => {
+            if (sidebar.classList.contains('open') && !sidebar.contains(e.target) && !mobileBtn.contains(e.target)) {
+                sidebar.classList.remove('open');
+            }
+        });
+    }
+
     // autohide messages 
     const uploadMessage = document.getElementById("upload-message");
         if (uploadMessage && uploadMessage.dataset.autohide === "true") {

@@ -154,6 +154,7 @@ function initials($name){
 </header>
 
 <div class="layout">
+    <button id="mobileMenuBtn" class="mobile_menu_btn">☰ Menu</button>
     <!-- for the sidebar ( i don't think this's neccesary)-->
     <!-- <aside class="sidebar">
     <div>

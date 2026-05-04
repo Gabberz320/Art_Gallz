@@ -298,6 +298,7 @@ a {
 	transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
 	cursor: pointer;
 	animation: fadeUp 0.4s ease both;
+    cursor: default;
 }
 
 .gallery_card:hover {
@@ -591,7 +592,7 @@ a {
 
 
 /* ── setting responsive ── */
-@media (max-width: 768px) {
+/* @media (max-width: 768px) {
 	.sidebar {
 		display: none;
 	}
@@ -599,4 +600,52 @@ a {
 		margin-left: 0;
 	}
 
+} */
+/* menu button for mobile */
+.mobile_menu_btn {
+	display: none;
+}
+
+@media (max-width: 768px) {
+	.main { 
+		margin-left: 0;
+	}
+
+	/* show floating button */
+	.mobile_menu_btn {
+		display: block;
+		position: fixed;
+		bottom: 20px;
+		left: 20px;
+		z-index: 9999;
+		background: var(--gradient);
+		color: var(--text);
+		border: none;
+		padding: 12px 24px;
+		border-radius: 30px;
+		font-family: 'DM Sans', sans-serif;
+		font-size: 16px;
+		font-weight: 700;
+		box-shadow: 0 8px 32px var(--accent-glow);
+		cursor: pointer;
+	}
+
+	/* convert sidebar to slide-out menu */
+	.sidebar {
+		display: flex;
+		position: fixed;
+		top: 0;
+		left: -300px; 
+		width: 250px;
+		height: 100vh;
+		background: var(--bg); 
+		z-index: 9998;
+		transition: left 0.3s ease;
+		padding-top: 80px; 
+		box-shadow: 4px 0 20px rgba(0, 0, 0, 0.5);
+	}
+
+	.sidebar.open {
+		left: 0;
+	}
 }
