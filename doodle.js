@@ -5,6 +5,8 @@ const sizePicker = document.getElementById('sizePicker');
 const eraserBtn = document.getElementById('eraserBtn');
 const brushBtn = document.getElementById('brushBtn');
 const saveBtn = document.getElementById('saveBtn');
+const fillBtn = document.getElementById('fillBtn');
+let isFill = false;
 
 // Set canvas resolution
 function resizeCanvas() {
@@ -17,9 +19,7 @@ resizeCanvas();
 let painting = false;
 let isEraser = false;
 
-/**
- * Get coordinates for both Mouse and Touch
- */
+// Get coordinates for both Mouse and Touch
 function getCoords(e) {
     const rect = canvas.getBoundingClientRect();
     // Check if it's a touch event
@@ -37,6 +37,11 @@ function getCoords(e) {
 }
 
 function startPosition(e) {
+    if (isFill) {
+        const coords = getCoords(e);
+        floodFill(Math.floor(coords.x), Math.floor(coords.y), colorPicker.value);
+        return; 
+    }
     painting = true;
     draw(e);
 }
@@ -71,6 +76,53 @@ function draw(e) {
     ctx.moveTo(coords.x, coords.y);
 }
 
+function floodFill(startX, startY, fillColor) {
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imageData.data;
+    
+    // Convert hex color to RGBA
+    const r = parseInt(fillColor.slice(1, 3), 16);
+    const g = parseInt(fillColor.slice(3, 5), 16);
+    const b = parseInt(fillColor.slice(5, 7), 16);
+    
+    const targetPos = (startY * canvas.width + startX) * 4;
+    const targetR = data[targetPos];
+    const targetG = data[targetPos + 1];
+    const targetB = data[targetPos + 2];
+    const targetA = data[targetPos + 3];
+
+    // Don't fill if color is already the same
+    if (targetR === r && targetG === g && targetB === b && targetA === 255) return;
+
+    const stack = [[startX, startY]];
+    
+    while (stack.length) {
+        const [x, y] = stack.pop();
+        let currentPos = (y * canvas.width + x) * 4;
+
+        if (x < 0 || x >= canvas.width || y < 0 || y >= canvas.height) continue;
+        
+        if (data[currentPos] === targetR && 
+            data[currentPos + 1] === targetG && 
+            data[currentPos + 2] === targetB && 
+            data[currentPos + 3] === targetA) {
+            
+            // Change pixel color
+            data[currentPos] = r;
+            data[currentPos + 1] = g;
+            data[currentPos + 2] = b;
+            data[currentPos + 3] = 255;
+
+            // Add neighbors to stack
+            stack.push([x + 1, y]);
+            stack.push([x - 1, y]);
+            stack.push([x, y + 1]);
+            stack.push([x, y - 1]);
+        }
+    }
+    ctx.putImageData(imageData, 0, 0);
+}
+
 // Mouse Events
 canvas.addEventListener('mousedown', startPosition);
 canvas.addEventListener('mouseup', finishedPosition);
@@ -90,14 +142,26 @@ canvas.addEventListener('touchmove', (e) => {
 // Tool Switching
 eraserBtn.addEventListener('click', () => {
     isEraser = true;
+    isFill = false;
     eraserBtn.classList.add('active');
     brushBtn.classList.remove('active');
+    fillBtn.classList.remove('active');
+});
+
+fillBtn.addEventListener('click', () => {
+    isFill = true;
+    isEraser = false;
+    fillBtn.classList.add('active');
+    brushBtn.classList.remove('active');
+    eraserBtn.classList.remove('active');
 });
 
 brushBtn.addEventListener('click', () => {
     isEraser = false;
+    isFill = false;
     brushBtn.classList.add('active');
     eraserBtn.classList.remove('active');
+    fillBtn.classList.remove('active');
 });
 
 function clearCanvas() {
@@ -120,11 +184,11 @@ saveBtn.addEventListener('click', () => {
     tempCanvas.width = canvas.width;
     tempCanvas.height = canvas.height;
 
-    // 1. Draw solid notebook background color
+    // Draw solid notebook background color
     tCtx.fillStyle = "#f1f1f1";
     tCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
     
-    // 2. Draw the horizontal grey lines (every 30px to match CSS)
+    // Draw the horizontal grey lines
     tCtx.strokeStyle = "#e1e1e1";
     tCtx.lineWidth = 1;
     tCtx.beginPath();
@@ -134,7 +198,7 @@ saveBtn.addEventListener('click', () => {
     }
     tCtx.stroke();
 
-    // 3. Draw the red notebook margin line
+    // Draw the red notebook margin line
     tCtx.strokeStyle = "#ffb4b8";
     tCtx.lineWidth = 2;
     tCtx.beginPath();
@@ -142,10 +206,10 @@ saveBtn.addEventListener('click', () => {
     tCtx.lineTo(51, tempCanvas.height);
     tCtx.stroke();
 
-    // 4. Draw the user's doodle on top
+    // Draw the user's doodle on top
     tCtx.drawImage(canvas, 0, 0);
 
-    // 5. Put the image data into the hidden input and submit the form!
+    // Put the image data into the hidden input and submit the form!
     const imageData = tempCanvas.toDataURL("image/png");
     input.value = imageData;
     

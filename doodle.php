@@ -81,9 +81,12 @@ function initials($name){
 
         <div id="doodle-tools-container" style="margin-top: 2rem; width: 100%;">
             <div class="sidebar_section">Doodle Tools</div>
-            <nav class="sidebar_nav" style="display: flex; flex-direction: row; gap: 10px; padding: 0 15px;">
+            <nav class="sidebar_nav" style="display: flex; flex-direction: column; gap: 10px; padding: 0 15px;">
                 <button type="button" class="sidebar_link active doodle-btn" id="brushBtn">
                     <span class="material-icons" style="font-size: 18px; vertical-align: middle; margin-right: 5px;">edit</span> Pencil
+                </button>
+                <button type="button" class="sidebar_link doodle-btn" id="fillBtn">
+                    <span class="material-icons" style="font-size: 18px; vertical-align: middle; margin-right: 5px;">format_color_fill</span> Fill
                 </button>
                 <button type="button" class="sidebar_link doodle-btn" id="eraserBtn">
                     <span class="material-icons" style="font-size: 18px; vertical-align: middle; margin-right: 5px;">auto_fix_normal</span> Eraser
