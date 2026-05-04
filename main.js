@@ -14,15 +14,15 @@ const savedTheme = localStorage.getItem('theme') || 'dark';
 applyTheme(savedTheme);
 
 // Auto-hide upload message after 3 seconds
-const uploadMessage = document.getElementById("upload-message");
-if (uploadMessage && uploadMessage.dataset.autohide === "true") {
-	setTimeout(() => {
-		uploadMessage.classList.add("is-hiding");
-		setTimeout(() => {
-			uploadMessage.remove();
-		}, 250);
-	}, 3000);
-}
+// const uploadMessage = document.getElementById("upload-message");
+// if (uploadMessage && uploadMessage.dataset.autohide === "true") {
+// 	setTimeout(() => {
+// 		uploadMessage.classList.add("is-hiding");
+// 		setTimeout(() => {
+// 			uploadMessage.remove();
+// 		}, 250);
+// 	}, 3000);
+// }
 
 // Handle Google Sign-In response
 function handleCredentialResponse(response) {
@@ -90,6 +90,16 @@ if (params.get('loggedout') === '1') {
 
 // DOM-dependent code - wait for page to load
 document.addEventListener('DOMContentLoaded', () => {
+    // autohide messages 
+    const uploadMessage = document.getElementById("upload-message");
+        if (uploadMessage && uploadMessage.dataset.autohide === "true") {
+            setTimeout(() => {
+                uploadMessage.classList.add("is-hiding");
+                setTimeout(() => {
+                    uploadMessage.remove();
+                }, 250);
+            }, 3000);
+        }
     // Avatar dropdown toggle
     const avatarBtn = document.getElementById('avatarBtn');
     const avatarDropdown = document.getElementById('avatarDropdown');

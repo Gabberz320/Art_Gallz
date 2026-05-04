@@ -128,7 +128,7 @@ function initials($name){
 <main class="main">
 
     <?php if($message): ?>
-        <div id="upload_message" class="message<?php echo $isSuccessMessage ? ' success_popup' : ''; ?>" data-autohide="<?php echo $isSuccessMessage ? 'true' : 'false'; ?>">
+        <div id="upload-message" class="message<?php echo $isSuccessMessage ? ' success_popup' : ''; ?>" data-autohide="<?php echo $isSuccessMessage ? 'true' : 'false'; ?>">
             <?php echo htmlspecialchars($message); ?>
         </div>
     <?php endif; ?>
