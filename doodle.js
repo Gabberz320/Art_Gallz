@@ -106,16 +106,48 @@ function clearCanvas() {
 
 // Handling Post functionality
 saveBtn.addEventListener('click', () => {
+    const form = document.getElementById('doodleForm');
+    const input = document.getElementById('imageInput');
+
+    // Make sure the form exists
+    if (!form || !input) {
+        alert('Please log in to post your doodle!');
+        return;
+    }
+
     const tempCanvas = document.createElement('canvas');
     const tCtx = tempCanvas.getContext('2d');
     tempCanvas.width = canvas.width;
     tempCanvas.height = canvas.height;
 
+    // 1. Draw solid notebook background color
     tCtx.fillStyle = "#f1f1f1";
-    tCtx.fillRect(0,0, tempCanvas.width, tempCanvas.height);
+    tCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+    
+    // 2. Draw the horizontal grey lines (every 30px to match CSS)
+    tCtx.strokeStyle = "#e1e1e1";
+    tCtx.lineWidth = 1;
+    tCtx.beginPath();
+    for (let y = 0; y < tempCanvas.height; y += 30) {
+        tCtx.moveTo(0, y);
+        tCtx.lineTo(tempCanvas.width, y);
+    }
+    tCtx.stroke();
+
+    // 3. Draw the red notebook margin line
+    tCtx.strokeStyle = "#ffb4b8";
+    tCtx.lineWidth = 2;
+    tCtx.beginPath();
+    tCtx.moveTo(51, 0); 
+    tCtx.lineTo(51, tempCanvas.height);
+    tCtx.stroke();
+
+    // 4. Draw the user's doodle on top
     tCtx.drawImage(canvas, 0, 0);
 
+    // 5. Put the image data into the hidden input and submit the form!
     const imageData = tempCanvas.toDataURL("image/png");
-    console.log("Ready to post!", imageData);
-    alert("Doodle captured!");
+    input.value = imageData;
+    
+    form.submit(); 
 });

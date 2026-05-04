@@ -66,8 +66,7 @@ function initials($name){
 </header>
 
 <div class="layout">
-    <!-- Sidebar with Drawing Tools -->
-    <aside class="sidebar">
+    <aside class="sidebar" id="desktop-sidebar">
         <div>
             <div class="sidebar_section">Browse</div>
             <nav class="sidebar_nav">
@@ -80,30 +79,31 @@ function initials($name){
             </nav>
         </div>
 
-        <div style="margin-top: 2rem;">
+        <div id="doodle-tools-container" style="margin-top: 2rem; width: 100%;">
             <div class="sidebar_section">Doodle Tools</div>
-            <nav class="sidebar_nav">
-                <button type="button" class="sidebar_link active" id="brushBtn">
-                    <span class="material-icons" style="font-size: 18px; vertical-align: middle; margin-right: 8px;">edit</span> Pencil
+            <nav class="sidebar_nav" style="display: flex; flex-direction: row; gap: 10px; padding: 0 15px;">
+                <button type="button" class="sidebar_link active doodle-btn" id="brushBtn">
+                    <span class="material-icons" style="font-size: 18px; vertical-align: middle; margin-right: 5px;">edit</span> Pencil
                 </button>
-                <button type="button" class="sidebar_link" id="eraserBtn">
-                    <span class="material-icons" style="font-size: 18px; vertical-align: middle; margin-right: 8px;">auto_fix_normal</span> Eraser
+                <button type="button" class="sidebar_link doodle-btn" id="eraserBtn">
+                    <span class="material-icons" style="font-size: 18px; vertical-align: middle; margin-right: 5px;">auto_fix_normal</span> Eraser
                 </button>
             </nav>
             
-            <!-- Tool Settings -->
-            <div style="padding: 15px 20px;">
-                <label class="sidebar_section" style="font-size: 11px; display: block; margin-bottom: 8px;">Size</label>
-                <input type="range" id="sizePicker" min="1" max="50" value="5" style="width: 100%; accent-color: var(--accent);">
-                
-                <label class="sidebar_section" style="font-size: 11px; display: block; margin-top: 20px; margin-bottom: 8px;">Color</label>
-                <input type="color" id="colorPicker" value="#ff00cc" style="width: 100%; height: 35px; border: 1px solid var(--border); background: var(--surface2); border-radius: 4px; cursor: pointer;">
+            <div class="tool-settings-group" style="padding: 15px 15px;">
+                <div style="flex: 1;">
+                    <label class="sidebar_section" style="font-size: 11px; display: block; margin-bottom: 8px;">Size</label>
+                    <input type="range" id="sizePicker" min="1" max="50" value="5" style="width: 100%; accent-color: var(--accent);">
+                </div>
+                <div style="flex: 1;">
+                    <label class="sidebar_section margin-adjust" style="font-size: 11px; display: block; margin-top: 20px; margin-bottom: 8px;">Color</label>
+                    <input type="color" id="colorPicker" value="#ff00cc" style="width: 100%; height: 35px; border: 1px solid var(--border); background: var(--surface2); border-radius: 4px; cursor: pointer;">
+                </div>
             </div>
         </div>
     </aside>
 
-    <!-- Main Drawing Area -->
-    <main class="main">
+    <main class="main" style="display: flex; flex-direction: column;">
         <div class="feed_header">
             <div class="feed_title">Notebook Doodle</div>
             <div class="feed_tabs">
@@ -118,107 +118,45 @@ function initials($name){
             </div>
         <?php endif; ?>
 
-        <!-- Notebook -->
         <div class="notebook_paper">
             <canvas id="doodleCanvas"></canvas>
         </div>
 
-        <!-- Submit form -->
+        <div id="mobile-tools-dest" style="padding: 20px 0;"></div>
+
         <form id="doodleForm" method="POST" action="save_doodle.php" style="display:none;">
             <input type="hidden" name="image" id="imageInput">
         </form>
     </main>
 </div>
 
-<script src="main.js"></script> 
 <script>
-    const canvas = document.getElementById('doodleCanvas');
-    const ctx = canvas.getContext('2d');
-    const colorPicker = document.getElementById('colorPicker');
-    const sizePicker = document.getElementById('sizePicker');
-    const brushBtn = document.getElementById('brushBtn');
-    const eraserBtn = document.getElementById('eraserBtn');
+    function relocateDoodleTools() {
+        const tools = document.getElementById('doodle-tools-container');
+        const destMobile = document.getElementById('mobile-tools-dest');
+        const destDesktop = document.getElementById('desktop-sidebar');
 
-    // Resize canvas to fill the notebook container
-    function initCanvas() {
-        canvas.width = canvas.offsetWidth;
-        canvas.height = canvas.offsetHeight;
-        ctx.lineCap = 'round';
-        ctx.lineJoin = 'round';
-    }
-    window.addEventListener('load', initCanvas);
-    window.addEventListener('resize', initCanvas);
+        if (!tools || !destMobile || !destDesktop) return;
 
-    let drawing = false;
-    let mode = 'brush';
-
-    function getMousePos(e) {
-        const rect = canvas.getBoundingClientRect();
-        return { x: e.clientX - rect.left, y: e.clientY - rect.top };
-    }
-
-    canvas.addEventListener('mousedown', (e) => {
-        drawing = true;
-        const pos = getMousePos(e);
-        ctx.beginPath();
-        ctx.moveTo(pos.x, pos.y);
-    });
-
-    canvas.addEventListener('mousemove', (e) => {
-        if (!drawing) return;
-        const pos = getMousePos(e);
-        ctx.lineWidth = sizePicker.value;
-        if (mode === 'eraser') {
-            ctx.globalCompositeOperation = 'destination-out';
+        // If screen is mobile-sized, move tools under the notebook
+        if (window.innerWidth <= 900) {
+            if (tools.parentElement !== destMobile) {
+                tools.style.marginTop = '0';
+                destMobile.appendChild(tools);
+            }
         } else {
-            ctx.globalCompositeOperation = 'source-over';
-            ctx.strokeStyle = colorPicker.value;
+            // If screen is desktop-sized, put tools back in the sidebar
+            if (tools.parentElement !== destDesktop) {
+                tools.style.marginTop = '2rem';
+                destDesktop.appendChild(tools);
+            }
         }
-        ctx.lineTo(pos.x, pos.y);
-        ctx.stroke();
-    });
-
-    window.addEventListener('mouseup', () => drawing = false);
-
-    // Switch Tools
-    brushBtn.onclick = () => {
-        mode = 'brush';
-        brushBtn.classList.add('active');
-        eraserBtn.classList.remove('active');
-    };
-    eraserBtn.onclick = () => {
-        mode = 'eraser';
-        eraserBtn.classList.add('active');
-        brushBtn.classList.remove('active');
-    };
-
-    function clearCanvas() { ctx.clearRect(0, 0, canvas.width, canvas.height); }
-
-    // Prepare image for upload
-    document.getElementById('saveBtn').onclick = function() {
-        if (!<?php echo isset($_SESSION['user_id']) ? 'true' : 'false'; ?>) {
-            alert('Please login to post!');
-            return;
-        }
-
-        const tempCanvas = document.createElement('canvas');
-        const tCtx = tempCanvas.getContext('2d');
-        tempCanvas.width = canvas.width;
-        tempCanvas.height = canvas.height;
-
-        // Draw notebook background for the final file
-        tCtx.fillStyle = "#f1f1f1";
-        tCtx.fillRect(0,0, tempCanvas.width, tempCanvas.height);
-        tCtx.strokeStyle = "#ffb4b8";
-        tCtx.lineWidth = 2;
-        tCtx.beginPath();
-        tCtx.moveTo(51, 0); tCtx.lineTo(51, tempCanvas.height);
-        tCtx.stroke();
-
-        tCtx.drawImage(canvas, 0, 0);
-        document.getElementById('imageInput').value = tempCanvas.toDataURL('image/png');
-        document.getElementById('doodleForm').submit();
-    };
+    }
+    window.addEventListener('resize', relocateDoodleTools);
+    document.addEventListener('DOMContentLoaded', relocateDoodleTools);
 </script>
+
+<script src="main.js"></script> 
+<script src="doodle.js"></script>
 </body>
 </html>

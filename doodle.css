@@ -25,3 +25,55 @@
     text-align: left;
     font-family: inherit;
 }
+
+/* --- Styling the Tool Buttons --- */
+.doodle-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    background: var(--surface2) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 8px !important;
+    text-align: center !important;
+    transition: all 0.2s ease;
+}
+
+.doodle-btn.active {
+    background: var(--accent-glow) !important;
+    color: var(--accent) !important;
+    border-color: var(--accent) !important;
+}
+
+/* --- Mobile Bottom Control Panel Styling --- */
+@media (max-width: 900px) {
+    /* Shrink notebook so we can easily reach the tools */
+    .notebook_paper {
+        height: 55vh; 
+        margin-bottom: 0px;
+    }
+
+    /* Restyle tools to look like a bottom dashboard */
+    #doodle-tools-container {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        background: var(--surface);
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        margin-bottom: 30px;
+    }
+
+    /* Put Size and Color side-by-side */
+    .tool-settings-group {
+        display: flex;
+        flex-direction: row;
+        gap: 20px;
+        padding: 0 !important;
+    }
+
+    .margin-adjust {
+        margin-top: 0 !important; 
+    }
+}
