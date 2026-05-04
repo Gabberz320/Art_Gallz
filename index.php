@@ -12,22 +12,62 @@ if (isset($_SESSION['upload_flash_message'])) {
 }
 
 //filter for Browse
+// $filter = $_GET['filter'] ?? 'recent';
+
+// try {
+//     $order = match($filter) {
+//         'recent' => 'a.art_ID DESC',
+//         'liked'  => 'a.LikesCounter DESC',
+//         default  => 'a.LikesCounter DESC, a.art_ID DESC',
+//     };
+//     $stmt = $pdo->query(
+//         "SELECT a.art_ID, a.user_id, a.Title, a.Description, 
+//                 a.CreationDate, a.ImageURL, a.LikesCounter, u.Name AS UserName
+//         FROM Artworks a
+//         INNER JOIN Users u ON a.user_id = u.user_id
+//         ORDER BY $order"
+//     );
+//     $artworks = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// } catch (PDOException $e) {
+//     $artworks = [];
+// }
+
+// filter for Browse
 $filter = $_GET['filter'] ?? 'recent';
+
+// If they try to access "My Uploads" but aren't logged in, redirect them to "recent"
+if ($filter === 'my_uploads' && !isset($_SESSION['user_id'])) {
+    $filter = 'recent';
+}
 
 try {
     $order = match($filter) {
-        'recent' => 'a.art_ID DESC',
-        'liked'  => 'a.LikesCounter DESC',
-        default  => 'a.LikesCounter DESC, a.art_ID DESC',
+        'recent'     => 'a.art_ID DESC',
+        'liked'      => 'a.LikesCounter DESC',
+        'my_uploads' => 'a.art_ID DESC', // order their uploads by newest first
+        default      => 'a.LikesCounter DESC, a.art_ID DESC',
     };
-    $stmt = $pdo->query(
-        "SELECT a.art_ID, a.user_id, a.Title, a.Description, 
-                a.CreationDate, a.ImageURL, a.LikesCounter, u.Name AS UserName
-        FROM Artworks a
-        INNER JOIN Users u ON a.user_id = u.user_id
-        ORDER BY $order"
-    );
+
+    // build the WHERE clause 
+    $whereClause = '';
+    $params = [];
+
+    if ($filter === 'my_uploads') {
+        $whereClause = "WHERE a.user_id = :user_id";
+        $params['user_id'] = $_SESSION['user_id'];
+    }
+
+    $sql = "SELECT a.art_ID, a.user_id, a.Title, a.Description, 
+                   a.CreationDate, a.ImageURL, a.LikesCounter, u.Name AS UserName
+            FROM Artworks a
+            INNER JOIN Users u ON a.user_id = u.user_id
+            $whereClause
+            ORDER BY $order";
+
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
     $artworks = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 } catch (PDOException $e) {
     $artworks = [];
 }
@@ -113,7 +153,7 @@ function initials($name){
 
 <div class="layout">
     <!-- for the sidebar ( i don't think this's neccesary)-->
-    <aside class="sidebar">
+    <!-- <aside class="sidebar">
     <div>
         <div class="sidebar_section">Browse</div>
         <nav class="sidebar_nav">
@@ -122,6 +162,19 @@ function initials($name){
             <a href="#" class="sidebar_link">My Uploads</a>
         </nav>
     </div>
+    </aside> -->
+    <aside class="sidebar">
+        <div>
+            <div class="sidebar_section">Browse</div>
+            <nav class="sidebar_nav">
+                <a href="index.php" class="sidebar_link">Home</a>
+                <a href="#" class="sidebar_link">Collage</a>
+            
+                <?php if(isset($_SESSION['user_id'])): ?>
+                    <a href="?filter=my_uploads" class="sidebar_link <?php echo $filter === 'my_uploads' ? 'active' : ''; ?>">My Uploads</a>
+                <?php endif; ?>
+            </nav>
+        </div>
     </aside>
 
 <!-- main feed -->
