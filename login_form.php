@@ -23,9 +23,9 @@ require 'db.php';
     </div>
 </header>
 
-<div class="layout">
-    <main class="main">
-        <div class="login_panel" style="max-width:520px;margin:40px auto;padding:24px;">
+<div class="layout" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 60px);padding:0;margin-top:60px;">
+    <main class="main" style="padding:0;width:auto;margin:0;">
+        <div class="login_panel" style="max-width:520px;padding:24px;margin:0;">
             <h2 style="font-family: 'Syne', sans-serif;">Log in</h2>
             <form method="POST" action="login.php" style="margin-top:12px;display:flex;flex-direction:column;gap:10px;">
                 <input type="email" name="email" placeholder="Email" required style="padding:10px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text);">
