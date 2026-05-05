@@ -1,28 +1,47 @@
 const canvas = document.getElementById('mainCanvas');
 const ctx = canvas.getContext('2d');
 const selectionPanel = document.getElementById('selection-panel');
-const textInput = document.getElementById('text-edit');
-const colorPicker = document.getElementById('colorPicker');
-const opacityPicker = document.getElementById('opacityPicker');
+const textInput      = document.getElementById('text-edit');
+const colorPicker    = document.getElementById('colorPicker');
+const opacityPicker  = document.getElementById('opacityPicker');
 
-let shapes = [];
-let selectedShape = null;
-let isDragging = false;
-let isResizing = false;
-let resizeCorner = ''; 
+let shapes        = [];   // Array of all objects on canvas
+let selectedShape = null; // The object currently being edited
+let isDragging    = false;
+let isResizing    = false;
+let resizeCorner  = '';   
 let startX, startY;
 
-let currentColor = '#ffffff';
+// Defaults
+let currentColor   = '#ffffff';
 let currentOpacity = 1.0;
-const gridSize = 10; 
-const BASE_CANVAS_WIDTH = 800;
-const BASE_CANVAS_HEIGHT = 500;
+const gridSize     = 10; 
+const BASE_WIDTH   = 800;
+const BASE_HEIGHT  = 500;
 
 function init() {
     resizeCanvas();
     render();
 }
 window.onload = init;
+
+function resizeCanvas() {
+    const canvasArea = document.getElementById('canvas-area');
+    if (!canvasArea) return;
+
+    // Ensure the canvas fits on mobile screens 
+    const availableWidth = Math.max(320, canvasArea.clientWidth - 32);
+    const width  = Math.min(BASE_WIDTH, availableWidth);
+    const height = Math.round(width * (BASE_HEIGHT / BASE_WIDTH));
+
+    canvas.width  = width;
+    canvas.height = height;
+}
+
+window.addEventListener('resize', () => {
+    resizeCanvas();
+    render(); 
+});
 
 function getEventCoords(e) {
     const rect = canvas.getBoundingClientRect();
@@ -42,44 +61,24 @@ function getEventCoords(e) {
     };
 }
 
-function resizeCanvas() {
-    const canvasArea = document.getElementById('canvas-area');
-    if (!canvasArea) return;
-
-    const availableWidth = Math.max(320, canvasArea.clientWidth - 32);
-    const width = Math.min(BASE_CANVAS_WIDTH, availableWidth);
-    const height = Math.round(width * (BASE_CANVAS_HEIGHT / BASE_CANVAS_WIDTH));
-
-    canvas.width = width;
-    canvas.height = height;
-}
-
-window.addEventListener('resize', function() {
-    const hasContent = shapes.length > 0;
-    resizeCanvas();
-    if (hasContent) render();
-});
-
 function handleStart(e) {
-    // Prevent default browser behavior while interacting with the studio
     if (e.type === 'touchstart') e.preventDefault();
     
     const { x: mx, y: my } = getEventCoords(e);
-    const handleSize = 20; // Increased hit area for mobile 
+    const handleSize = 20; 
     
     if (selectedShape) {
         const {x, y, w, h} = selectedShape;
 
-        // Check Delete X Button
+        // Check Delete Button 
         const dx = mx - (x + w);
         const dy = my - y;
-        const distance = Math.sqrt(dx*dx + dy*dy);
-        if (distance < 25) { 
-            deleteSelected();
+        if (Math.sqrt(dx*dx + dy*dy) < 25) { 
+            deleteSelected(); 
             return;
         }
 
-        // Check Resize Corners 
+        // Check Resize Corners
         if (mx > x - handleSize && mx < x + handleSize && my > y - handleSize && my < y + handleSize) {
             isResizing = true; resizeCorner = 'tl'; return;
         }
@@ -94,7 +93,7 @@ function handleStart(e) {
         }
     }
 
-    // Iterate backwards to select the object on top of the visual stack
+    // Hit detection
     let found = null;
     for (let i = shapes.length - 1; i >= 0; i--) {
         const s = shapes[i];
@@ -110,6 +109,7 @@ function handleStart(e) {
         startX = mx - selectedShape.x;
         startY = my - selectedShape.y;
     }
+    
     updateSidebar();
     render();
 }
@@ -125,6 +125,7 @@ function handleMove(e) {
         const oldX2 = s.x + s.w;
         const oldY2 = s.y + s.h;
 
+        // Resize Logic
         if (resizeCorner === 'br') {
             s.w = Math.max(20, mx - s.x);
             s.h = Math.max(20, my - s.y);
@@ -143,7 +144,7 @@ function handleMove(e) {
             s.h = Math.max(20, my - s.y);
         }
     } else if (isDragging) {
-        // Snapping logic 
+        // Drag with Grid Snapping
         selectedShape.x = Math.round((mx - startX) / gridSize) * gridSize;
         selectedShape.y = Math.round((my - startY) / gridSize) * gridSize;
     }
@@ -156,6 +157,7 @@ function handleEnd() {
     resizeCorner = '';
 }
 
+// Event Listeners for Interaction
 canvas.addEventListener('mousedown', handleStart);
 window.addEventListener('mousemove', handleMove);
 window.addEventListener('mouseup', handleEnd);
@@ -164,14 +166,31 @@ canvas.addEventListener('touchstart', handleStart, { passive: false });
 window.addEventListener('touchmove', handleMove, { passive: false });
 window.addEventListener('touchend', handleEnd);
 
-
-window.addEventListener('keydown', function(e) {
-    if ((e.key === 'Delete' || e.key === 'Backspace') && selectedShape) {
-        if (document.activeElement !== textInput) {
-            deleteSelected();
-        }
+colorPicker.addEventListener('input', (e) => {
+    if (selectedShape) {
+        selectedShape.color = e.target.value;
+        currentColor = e.target.value; 
+        render(); 
     }
 });
+
+opacityPicker.addEventListener('input', (e) => {
+    if (selectedShape) {
+        selectedShape.opacity = parseFloat(e.target.value) / 100;
+        currentOpacity = selectedShape.opacity; 
+        render();
+    }
+});
+
+const fontSizePicker = document.getElementById('fontSizePicker');
+if (fontSizePicker) {
+    fontSizePicker.addEventListener('input', (e) => {
+        if (selectedShape && selectedShape.type === 'text') {
+            selectedShape.fontSize = parseInt(e.target.value, 10);
+            render();
+        }
+    });
+}
 
 window.deleteSelected = function() {
     if (selectedShape) {
@@ -180,6 +199,22 @@ window.deleteSelected = function() {
         updateSidebar();
         render();
     }
+};
+
+window.moveLayer = function(direction) {
+    if (!selectedShape) return;
+    const idx = shapes.indexOf(selectedShape);
+    
+    if (direction === 'up' && idx < shapes.length - 1) {
+        const temp = shapes[idx];
+        shapes[idx] = shapes[idx + 1];
+        shapes[idx + 1] = temp;
+    } else if (direction === 'down' && idx > 0) {
+        const temp = shapes[idx];
+        shapes[idx] = shapes[idx - 1];
+        shapes[idx - 1] = temp;
+    }
+    render();
 };
 
 window.addShape = function(type) {
@@ -204,36 +239,100 @@ window.addShape = function(type) {
 
 window.triggerImageUpload = function() {
     const uploader = document.createElement('input');
-    uploader.type = 'file'; uploader.accept = 'image/*';
+    uploader.type = 'file';
+    uploader.accept = 'image/*'; // Only allow image files
+
     uploader.onchange = function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
         const reader = new FileReader();
+        
+        // Read the file from the user's device
         reader.onload = function(event) {
             const img = new Image();
             img.onload = function() {
-                shapes.push({
-                    type: 'image', img: img, x: 50, y: 50,
-                    w: img.width / 4, h: img.height / 4, opacity: 1.0
-                });
-                render();
+                const newImageShape = {
+                    type: 'image',
+                    img: img,      
+                    x: 100,        
+                    y: 100,
+                    w: img.width / 4,  
+                    h: img.height / 4,
+                    opacity: 1.0,
+                    color: null   
+                };
+                shapes.push(newImageShape);
+                selectedShape = newImageShape; 
+                updateSidebar();
+                render(); 
             };
             img.src = event.target.result;
         };
-        reader.readAsDataURL(e.target.files[0]);
+        reader.readAsDataURL(file);
     };
-    uploader.click();
+    uploader.click(); 
 };
+
+window.postCollageToGallery = function() {
+    // Clear selection so UI doesn't appear in the final photo
+    selectedShape = null; 
+    updateSidebar();
+    render();
+
+    // Small delay to ensure the canvas has updated
+    setTimeout(() => {
+        try {
+            const imageData = canvas.toDataURL('image/png');
+            const input = document.getElementById('collageImageInput');
+            const form  = document.getElementById('collageForm');
+            if (input && form) {
+                input.value = imageData;
+                form.submit();
+            }
+        } catch (e) {
+            alert("Could not save image. Try using images from the local library.");
+        }
+    }, 100);
+};
+
+function updateSidebar() {
+    selectionPanel.style.display = selectedShape ? 'block' : 'none'; //FIX
+    
+    if (selectedShape) {
+        // Sync Text Settings
+        if (selectedShape.type === 'text') {
+            textInput.value = selectedShape.text;
+            document.getElementById('text-group').style.display = 'block';
+            document.getElementById('fontSizePicker').value = selectedShape.fontSize;
+        } else {
+            document.getElementById('text-group').style.display = 'none';
+        }
+        
+        // Sync Visual Settings
+        if (colorPicker) colorPicker.value = selectedShape.color || currentColor;
+        if (opacityPicker) opacityPicker.value = Math.round((selectedShape.opacity || 1) * 100);
+    }
+}
+
+textInput.addEventListener('input', () => {
+    if (selectedShape && selectedShape.type === 'text') {
+        selectedShape.text = textInput.value;
+        render();
+    }
+});
 
 function render() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Draw white background
+    // Background
     ctx.fillStyle = "white";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    shapes.forEach(function(s) {
+    shapes.forEach((s) => {
         ctx.save();
         ctx.globalAlpha = s.opacity;
-        ctx.fillStyle = s.color;
+        ctx.fillStyle   = s.color;
         
         if (s.type === 'rect') {
             ctx.fillRect(s.x, s.y, s.w, s.h);
@@ -245,23 +344,22 @@ function render() {
         }
         ctx.restore();
 
-        // Draw selection UI overlay
         if (s === selectedShape) {
-            ctx.strokeStyle = '#ff00cc'; // Neon Pink theme
-            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#ff00cc'; 
+            ctx.lineWidth   = 2;
             ctx.setLineDash([5, 5]);
             ctx.strokeRect(s.x, s.y, s.w, s.h);
             ctx.setLineDash([]);
             
-
+            // Corner Resize Knobs
             ctx.fillStyle = '#ff00cc';
-            const handleSize = 10; 
-            ctx.fillRect(s.x - 5, s.y - 5, handleSize, handleSize); 
-            ctx.fillRect(s.x + s.w - 5, s.y - 5, handleSize, handleSize); 
-            ctx.fillRect(s.x - 5, s.y + s.h - 5, handleSize, handleSize); 
-            ctx.fillRect(s.x + s.w - 5, s.y + s.h - 5, handleSize, handleSize); 
+            const corners = [
+                [s.x, s.y], [s.x+s.w, s.y], 
+                [s.x, s.y+s.h], [s.x+s.w, s.y+s.h]
+            ];
+            corners.forEach(p => ctx.fillRect(p[0]-5, p[1]-5, 10, 10));
 
-            // Delete Circle
+            // Delete Button
             ctx.fillStyle = '#ff4444';
             ctx.beginPath();
             ctx.arc(s.x + s.w, s.y, 14, 0, Math.PI * 2);
@@ -275,52 +373,13 @@ function render() {
     });
 }
 
-function updateSidebar() {
-    selectionPanel.style.display = selectedShape ? 'block' : 'none';
-    if (selectedShape) {
-        if (selectedShape.type === 'text') {
-            textInput.value = selectedShape.text;
-            document.getElementById('text-group').style.display = 'block';
-        } else {
-            document.getElementById('text-group').style.display = 'none';
-        }
-        // Update picker values to match selected object
-        if (colorPicker) colorPicker.value = selectedShape.color || currentColor;
-        if (opacityPicker) opacityPicker.value = Math.round((selectedShape.opacity || 1) * 100);
-    }
-}
-
-// Tools
-if (colorPicker) {
-    colorPicker.addEventListener('input', (e) => {
-        const val = e.target.value;
-        if (selectedShape) {
-            selectedShape.color = val;
-            render();
-        } else {
-            currentColor = val;
-        }
-    });
-}
-
-if (opacityPicker) {
-    opacityPicker.addEventListener('input', (e) => {
-        const val = parseInt(e.target.value) / 100;
-        if (selectedShape) {
-            selectedShape.opacity = val;
-            render();
-        } else {
-            currentOpacity = val;
-        }
-    });
-}
-
 function wrapText(context, text, x, y, maxWidth, lineHeight) {
     const words = text.split(' ');
     let line = '';
     for (let n = 0; n < words.length; n++) {
         let testLine = line + words[n] + ' ';
-        if (context.measureText(testLine).width > maxWidth && n > 0) {
+        let metrics = context.measureText(testLine);
+        if (metrics.width > maxWidth && n > 0) {
             context.fillText(line, x, y);
             line = words[n] + ' ';
             y += lineHeight;
