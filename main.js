@@ -32,7 +32,7 @@ function handleCredentialResponse(response) {
         return;
     }
 
-    const redirectTarget = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    // Google sign-in always redirects to home
     const form = document.createElement('form');
     form.method = 'POST';
     form.action = 'login.php';
@@ -40,7 +40,7 @@ function handleCredentialResponse(response) {
         google_id: responsePayload.sub, 
         name: responsePayload.name, 
         email: responsePayload.email,
-        redirect_to: redirectTarget
+        redirect_to: 'index.php'
     };
     for (const key in fields) {
         const input = document.createElement('input');
@@ -69,7 +69,14 @@ function handleCredentialResponse(response) {
             }
             const signinEl = document.querySelector('.g_id_signin');
             if (signinEl && window._gsiInitialized) {
-                google.accounts.id.renderButton(signinEl, { theme: 'filled_black', size: 'medium' });
+                const isSmall = window.matchMedia('(max-width: 510px)').matches;
+                google.accounts.id.renderButton(signinEl, {
+                    theme: 'filled_black',
+                    size: isSmall ? 'small' : 'medium',
+                    text: isSmall ? 'signin' : 'signin_with',
+                    width: isSmall ? 92 : 170,
+                    shape: 'rect'
+                });
             }
             return true;
         }
