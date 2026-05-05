@@ -62,9 +62,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </header>
 
-<div class="layout">
-    <main class="main">
-        <div class="login_panel" style="max-width:520px;margin:40px auto;padding:24px;">
+<div class="layout" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 60px);padding:0;margin-top:60px;">
+    <main class="main" style="padding:0;width:auto;margin:0;">
+        <div class="login_panel" style="max-width:520px;padding:24px;margin:0;">
             <h2 style="font-family: 'Syne', sans-serif;">Create account</h2>
 
             <?php if (!empty($errors)): ?>
