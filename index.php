@@ -257,7 +257,7 @@ function initials($name){
                 </span>
             <?php endif; ?>
                  <span class="card_date"><?php echo htmlspecialchars($art['CreationDate']); ?></span>
-            <?php if (isset($_SESSION['user_id']) && $_SESSION['user_id'] === $art['user_id']): ?>
+            <?php if (isset($_SESSION['user_id']) && (int)$_SESSION['user_id'] === (int)$art['user_id']): ?>
                 <form method="POST" action="delete.php" onsubmit="return confirm('Delete this artwork?')">
                     <input type="hidden" name="art_id" value="<?php echo $art['art_ID']; ?>">
                     <button type="submit" class="delete_btn" title="Delete artwork" aria-label="Delete artwork">

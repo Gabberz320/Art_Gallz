@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $ins = $pdo->prepare('INSERT INTO Users (Name, Email, PasswordHash) VALUES (?, ?, ?)');
                 $ins->execute([$name, $email, $hash]);
 
-                $user_id = $pdo->lastInsertId();
+                $user_id = (int)$pdo->lastInsertId();
                 $_SESSION['user_id'] = $user_id;
                 $_SESSION['user_name'] = $name;
                 $_SESSION['user_email'] = $email;

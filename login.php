@@ -83,7 +83,7 @@ if (isset($_POST['email']) && isset($_POST['password'])) {
         }
 
         // authenticated
-        $_SESSION['user_id'] = $user['user_id'];
+        $_SESSION['user_id'] = (int)$user['user_id'];
         $_SESSION['user_name'] = $user['Name'];
         $_SESSION['user_email'] = $email;
 
@@ -110,10 +110,10 @@ if (isset($_POST['google_id'])) {
         // fetch user using your 'user_id' and 'oauthID' columns
         $stmt = $pdo->prepare("SELECT user_id, Name FROM Users WHERE oauthID = ?");
         $stmt->execute([$oauth_id]);
-        $user = $stmt->fetch();
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
         // set session using column names
-        $_SESSION['user_id'] = $user['user_id'];
+        $_SESSION['user_id'] = (int)$user['user_id'];
         $_SESSION['user_name'] = $user['Name'];
         $_SESSION['google_id'] = $oauth_id;
         $_SESSION['user_email'] = $email;
