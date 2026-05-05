@@ -32,7 +32,12 @@ function normalizeLocalRedirect(string $candidate, string $fallback): string {
 
 function resolveRedirectTarget(string $fallback = 'index.php'): string {
     if (isset($_POST['redirect_to'])) {
-        $fromPost = normalizeLocalRedirect((string)$_POST['redirect_to'], $fallback);
+        $candidate = trim((string)$_POST['redirect_to']);
+        // For index.php, allow it directly
+        if ($candidate === 'index.php') {
+            return 'index.php';
+        }
+        $fromPost = normalizeLocalRedirect($candidate, 'INVALID');
         if ($fromPost !== $fallback) {
             return $fromPost;
         }
@@ -113,8 +118,8 @@ if (isset($_POST['google_id'])) {
         $_SESSION['google_id'] = $oauth_id;
         $_SESSION['user_email'] = $email;
 
-        // send them back to the page where login started
-        header('Location: ' . $redirectTarget);
+        // Google sign-in always redirects to index.php
+        header('Location: index.php');
         exit;
     } catch (Exception $e) {
         die("Database error: " . $e->getMessage());

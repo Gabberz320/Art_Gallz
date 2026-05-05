@@ -9,6 +9,7 @@ require 'db.php';
     <title>Login</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/jwt-decode/build/jwt-decode.min.js"></script>
 </head>
 <body data-google-client-id="<?php echo htmlspecialchars($env['GOOGLE_CLIENT_ID']); ?>">
 
@@ -16,7 +17,7 @@ require 'db.php';
 <header class="topbar">
     <a href="index.php?filter=recent" class="topbar_logo">Web Gallz</a>
     <div class="topbar_actions">
-        <a href="index.php" class="btn_upload">Home</a>
+        <a href="login_form.php" class="btn_upload topbar_auth_btn">Log in</a>
         <a href="register.php" class="btn_upload topbar_auth_btn">Register</a>
         <div class="g_id_signin"></div>
     </div>
@@ -34,7 +35,6 @@ require 'db.php';
                     <a href="register.php" style="color:var(--text-dim);">Create account</a>
                 </div>
             </form>
-            <p style="color:var(--text-muted);margin-top:12px;">Or sign in with Google on the homepage.</p>
         </div>
     </main>
 </div>

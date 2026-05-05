@@ -49,13 +49,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Register</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/jwt-decode/build/jwt-decode.min.js"></script>
 </head>
 <body data-google-client-id="<?php echo htmlspecialchars($env['GOOGLE_CLIENT_ID']); ?>">
 
 <header class="topbar">
     <a href="index.php?filter=recent" class="topbar_logo">Web Gallz</a>
     <div class="topbar_actions">
-        <a href="index.php" class="btn_upload">Home</a>
         <a href="register.php" class="btn_upload topbar_auth_btn">Register</a>
         <a href="login_form.php" class="btn_upload topbar_auth_btn">Log in</a>
         <div class="g_id_signin"></div>

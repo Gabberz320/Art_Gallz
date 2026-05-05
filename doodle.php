@@ -58,8 +58,8 @@ function initials($name){
                 </div>
             </div>
         <?php else: ?>
-            <!-- Google Sign-In -->
-            <div class="g_id_signin"></div>
+            <a href="login_form.php" class="btn_upload topbar_auth_btn">Log in</a>
+            <a href="register.php" class="btn_upload topbar_auth_btn">Register</a>
         <?php endif; ?>
 
     </div>
